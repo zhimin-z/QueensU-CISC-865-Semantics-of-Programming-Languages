@@ -1,2 +1,2 @@
 # CISC 865 - Semantics of Programming Languages
-[CISC 865](https://www.cs.queensu.ca/graduate/courses/CISC/865) was taught by Prof. [Jana Dunfield](https://research.cs.queensu.ca/home/jana/), and I would like to share everything about this course here.
+This course was taught by Prof. [Jana Dunfield](https://research.cs.queensu.ca/home/jana/), and I would like to share everything about it here.
