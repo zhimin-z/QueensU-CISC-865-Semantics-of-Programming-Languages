@@ -1,0 +1,257 @@
+465/865 Friday 2022-02-11
+Jana Dunfield
+Please mute your microphone when not speaking
+This lecture is recorded until about the 50-minute mark
+
+I will need to leave by 13:20
+
+lec8.pdf (Negation)
+Natural deduction:
+
+atomic formulas   P, Q
+                  (we also use   "a > 0", etc.
+variables         a, b
+                  )
+formulas          A, B, C ::= P           atomic formula
+                            | A ⊃ B       implication  (A → B)
+			    | A ∧ B       conjunction (and)
+			    | A ∨ B       disjunction (or)
+			    | ∀a:nat. A   (for all a)
+                            | ∃a:nat. A   (there exists a)
+                            | True        truth (always true)
+                            | False       falsehood
+			    | ¬A          negation
++--------+
+| A true | formula A is true
++--------+
+ 
+  A true     B true            
+  ––––––––––––––––– ∧Intro 
+     (A ∧ B) true	   
+
+  A ∧ B true  	       A ∧ B true  	    
+  –––––––––– ∧Elim1    –––––––––– ∧Elim2 
+    A true               B true          
+
+     x[A true] 
+        .
+        .
+        .                  
+       B true             x
+  ––––––––––––––––– ⊃Intro 
+    (A ⊃ B) true           
+
+  A true        A ⊃ B true
+  A ⊃ B true    A true		 
+  –––––––––––––––––––– ⊃Elim	 
+         B true        
+
+  ——————————— TrueIntro
+   True true
+
+   No elimination rule (TrueElim) for True
+
+["True" is another symbol for "⊤" as used in e.g. CISC 204]
+["False" is another symbol for "⊥" as used in e.g. CISC 204]
+
+    A true              B true
+  –––––––––– ∨Intro1   –––––––––– ∨Intro2
+  A ∨ B true           A ∨ B true
+
+                   x[A true]    y[B true]
+                      .             .
+                      .             .
+                      .             .
+  A ∨ B true        C true       C true      x,y
+  ––––––––––––––––––––––––––––––––––––– ∨Elim
+                 C true
+
+
+              x[a:nat]
+
+               B true                  x
+ ––––––––––––––––––––––––––––––– ∀Intro
+       (∀a:nat. B) true
+
+   (∀a:nat. B) true              n : nat       
+   ––––––––––––––––––––––––––––––––––––– ∀Elim 
+                [n/a]B true
+
+   n : nat   ([n/a]B) true   
+   ––––––––––––––––––––––– ∃Intro
+      (∃a:nat. B) true
+                               x[a:nat]
+			       y[B true]
+                                  :
+				  :
+   (∃a:nat. B) true            C true          x,y
+   –––––––––––––––––––––––––––––––––––––– ∃Elim
+                   C true
+  
+   False true
+   –––––––––– FalseElim
+     C true               ["ex falso quodlibet"]
+
+      x[A true]
+         .
+	 .
+	 .
+     False true          x
+   ––––––––––––––– ¬Intro
+       ¬A true
+
+  A true     (¬A) true
+  –––––––––––––––––––– ¬Elim
+        False true
+
+[equivalently: put the premise with the connective
+ being eliminated first
+  (¬A) true     A true     
+  –––––––––––––––––––– ¬Elim
+        False true
+]
+
+
+
+[In this course, don't have Law of the Excluded Middle:
+
+  ––––––––––––– [LEM]
+  (A ∨ ¬A) true
+]
+
+- Admissibility
+
+ A proposed rule is "admissible" if it's redundant
+
+ If we have a proposed rule
+
+  Premise-1    ···   Premise-n
+  ———————––––––––––––––————––– proposed-rule
+           Conclusion
+
+ This proposed-rule is admissible iff, whenever we
+ can derive Premise-1 through Premise-n,
+ we can derive Conclusion
+ using the existing rules.
+
+ Example:
+
+   A1 true    A2 true   A3 true
+   –––––––––––––––––––––––––––– proposed-rule-1
+        (A1 ∧ A2) ∧ A3 true
+
+ Is this admissible?
+   Suppose we have derivations of
+   A1 true    A2 true   A3 true
+
+   Can we derive (A1 ∧ A2) ∧ A3 true
+   using the existing rules?
+
+   A1 true    A2 true
+   –––––––––––––––––– ∧Intro
+     (A1 ∧ A2) true                 A3 true
+   –––––––––––––––––––––––––––––––––––––––– ∧Intro
+      (A1 ∧ A2) ∧ A3 true
+
+   A1 true              Given
+   A2 true              Given
+   A1 ∧ A2 true         By ∧Intro
+   A3 true              Given
+   (A1 ∧ A2) ∧ A3 true  By ∧Intro
+   
+Therefore, proposed-rule-1 is admissible.
+
+The next proposed rule is
+
+     A true
+   –––––––––––– proposed-rule-2
+    ¬ ¬ A true
+
+In classical logic, ¬¬⊤ ≡ ⊤
+           not not True   True
+	       not True
+	             ¬⊤ ≡ ⊥
+		    
+Is proposed-rule-2 admissible?
+
+ Suppose we have a derivation of
+    A true
+
+ Can we derive  ¬ ¬ A  true   using the existing rules?
+
+      x[¬A true]
+          
+
+              ––––––– x
+   A true     ¬A true
+   –––––––––––––––––– ¬Elim
+       False true          x
+  –––––––––––––––––– ¬Intro
+      ¬(¬A)  true
+
+proposed-rule-2 is admissible
+
+     A true
+   –––––––––––– ¬¬i  "double negation introduction"
+    ¬¬A true
+
+(this rule is accepted by "constructivists")
+
+      ¬¬A true
+   –––––––––––––– proposed-rule-3 ("double negation elimination")
+       A true
+
+Is proposed-rule-3 admissible?
+
+ Suppose we have a derivation of
+
+     ¬¬A true
+
+I'm sure this isn't admissible.
+
+
+Suppose we add LEM (FOR THE NEXT 10 MINUTES ONLY)
+
+  ––––––––––––– LEM
+  (A ∨ ¬A) true
+
+
+
+Is proposed-rule-3 admissible (with LEM)?
+
+ Suppose we have a derivation of
+     ¬¬A true
+
+                         x[A true]       y[¬A true]
+
+                                         ––––––––– y
+					  ¬A true     ¬¬A true
+				 	 ––––––––––––––––––––– ¬Elim
+                                           False true
+   ––––––––––––– LEM      ––––––––– x    –––––––––––– FalseElim
+   (A ∨ ¬A) true            A true        A true       x,y
+   –––––––––––––––––––––––––––––––––––––––––––––– ∨Elim
+                      A true
+
+Therefore, proposed-rule-3 is admissible (with LEM)
+      ¬¬A true
+   –––––––––––––– proposed-rule-3 (¬¬e, double negation elimination)
+       A true
+
+  ¬A ∨ B   really equivalent to (¬A) ∨ B  and to  ¬(A) ∨ B
+
+I will try not to write  A ∨ B ∧ C
+    A ∨ (B ∧ C)
+  A ∧ B ⊃ C  means   (A ∧ B) ⊃ C
+
+
+"Derivability"  A rule is "derivable" iff you can get from the premises
+   to the conclusion with the premises as leaves
+
+
+
+
+
+
+
+

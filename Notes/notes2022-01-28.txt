@@ -1,0 +1,342 @@
+465/865 Friday 2022-01-28
+Please mute your microphone when not speaking
+This lecture is recorded until about the 50-minute mark
+
+Soundness and completeness (lec4.pdf)
+
+The kind of soundness (and unsoundness) that we will work with in 465/865
+is:
+  soundness of a theory (formal system, set of rules)
+  with respect to
+  some other theory.
+
+*Usually*, the "some other theory" will be an existing theory that we trust in some way.
+Maybe the existing theory is considered good or useful.
+Maybe the existing theory has been experimentally validated ("sound with respect to reality")
+
+  new theory                      existing theory
+  +------------------+           +------------------+
+  |                  |           |                  |
+  |                  |           |                  |
+  |                  |           |                  |
+  |                  |           |                  |
+  |                  |           |                  |
+  |                  |           |                  |
+  +------------------+           +------------------+
+
+"the new theory is sound with respect to the existing theory"
+means
+"anything derivable in the new theory  is  derivable in the old theory"
+
+
+  new theory                      existing theory
+  +------------------+           +------------------+
+  |                  |           |                  |
+  |                  |           |    3 ⇓ 3         |
+  |    3 ⇓ 3         |           |                  |
+  |                  |           |    (+ 1 2) ⇓ 3   |
+  | (+ 1 2) ⇓ 3      |           |                  |
+  |                  |           |                  |
+  +------------------+           +------------------+
+               ——————————————►►►►
+	        soundness:
+		everything in the new theory on the left
+		also appears in the existing theory on the right
+
+Example:
+
+  new theory                      existing theory
+  +------------------+           +------------------+
+  |                  |           |                  |     ⊤  =  truth
+  |    ⊥ true        |           |     ⊤ true       |     ⊥  =  falsehood
+  |                  |           |                  |
+  |                  |           |                  |
+  |                  |           |   ⊤ ∧ ⊤ true     |
+  |                  |           |                  |  ⊥ true
+  +------------------+           +------------------+
+               ——————————————►►►►
+	        soundness:
+		everything on the left
+		also appears on the right
+		
+Is this new theory sound?
+⊥ true  is in the new theory   but   ⊥ true is not in the existing theory
+
+
+
+  new theory                      existing theory
+  +------------------+           +------------------+
+  |                  |           |                  |
+  |                  |           |    3 ⇓ 3         |
+  |    3 ⇓ 3         |           |                  |
+  |                  |           |                  |
+  |                  |           |                  |
+  |                  |           |                  |
+  +------------------+           +------------------+
+               ◄◄◄◄———————————----------
+	        completeness:
+		everything on the right
+		also appears on the left
+
+Example:
+
+  –––––– newtheoryrule
+  ⊤ true
+
+  new theory                      existing theory
+  +------------------+           +------------------+
+  |                  |           |                  |
+  |                  |           |   ⊤ true         |
+  |    ⊤ true        |           |                  |
+  |                  |           |   ⊤ ∧ ⊤ true     |
+  |                  |           |                  |
+  |                  |           |           ...    |
+  +------------------+           +------------------+
+nothing else in new theory
+
+               ◄◄◄◄———————————----------
+	        completeness:
+		everything on the right
+		also appears on the left
+[is this new theory sound?  yes, the only thing in the new theory is  ⊤ true  and  ⊤ true is in the existing theory
+ we proved soundness
+]
+is this new theory complete?  no, because ⊤ ∧ ⊤ true is in the existing theory, but not in the new theory.
+
+
+
+Continuing with the example from Wednesday:
+
+  e ::= n
+      | (+ e e)
+      | (- e e)    ◄◄◄◄ new
+  v ::= n
+
+[excursion:
+  e ::= true
+      | false
+      | n
+      | (+ e e)
+      | (- e e)
+
+Inductive definition in English for this version of e:
+
+  (a) true is an expression.
+  (b) false is an expression.
+  (c) If n is an integer, then n is an expr ession.
+  (d) If e1 and e2 are expressions, then (+ e1 e2) is an exp.
+  (e) If e1 and e2 are expressions, then (- e1 e2) is an exp.
+
+  +------------+
+  |  e ⇓ v     | e evaluates to v, "trusted"
+  +------------+  (same as in recent lectures)
+  
+                          e1 ⇓ n1    e2 ⇓ n2
+   –––––– eval-const      –––––––––––––––––– eval-add
+   n ⇓ n                  (+ e1 e2) ⇓ n1+n2
+                          e         ⇓ v
+
+  +------------+
+  |  e ⇓big v  | e evaluates to v in a big language
+  +------------+                       (it has subtraction!)
+
+                            e1 ⇓big n1    e2 ⇓big n2
+   ––––––––– big-const      ––––––––––––––––––––––––– big-add
+   n ⇓big n                   (+ e1 e2) ⇓big n1+n2
+
+   e1 ⇓big n1    e2 ⇓big n2
+   ––––––––––––––––––––––––– big-subtract
+      (- e1 e2) ⇓big n1-n2
+
+[Question: are the subderivations about subexpression?
+Answer: Sometimes, not necessarily.  Depends on the rules.
+If we had a rule like the following one,
+we would have a subderivation  (+ 1 4) ⇓ 10
+that is about (+ 1 4), which is not a subexpression of 3.
+
+ (+ 1 4) ⇓ 10
+ –––––––––––––
+   3 ⇓ n
+]
+
+Is  ⇓big  sound with respect to  ⇓  ?
+  That is: Does the following hold?
+  For all e and v,
+  If e ⇓big v then e ⇓ v.
+
+  No.  Counterexample: e = (- 1 1), v = 0
+  
+           (- 1 1) ⇓big 0  is derivable
+	   (- 1 1) ⇓ 0     is not derivable
+
+Is  ⇓big  complete with respect to  ⇓  ?
+
+  That is: Does the following hold?
+  For all e and v,
+  If e ⇓ v then e ⇓big v.
+
+Is there a counterexample?
+e =             v =
+
+e ⇓ v  but not  e ⇓big v
+
+––––– eval-const  –––––– eval-const
+3 ⇓ 3             2 ⇓ 2
+––––––––––––––––––––––––––––––––––– eval-add
+         (+ 3 2) ⇓ 5                           <<< D
+subderivations of D:
+1.
+
+––––– eval-const  –––––– eval-const
+3 ⇓ 3             2 ⇓ 2
+––––––––––––––––––––––––––––––––––– eval-add
+         (+ 3 2) ⇓ 5
+
+2.
+ –––––– eval-const
+ 3 ⇓ 3
+
+3.
+ –––––– eval-const
+ 2 ⇓ 2
+
+proper subderivations of D: 2, 3
+
+
+–––––––– big-const  –––––––– big-const
+3 ⇓big 3            2 ⇓big 2
+––––––––––––––––––––––––––––––––––––– big-add
+         (+ 3 2) ⇓big 5
+
+Conjecture (Completeness of ⇓big with respect to ⇓):
+  For all e and v,
+  If D derives e ⇓ v then e ⇓big v.
+
+Proof: By induction on D.
+
+  IH: For all e' and v',
+      If D' < D and D' derives e' ⇓ v' then e' ⇓big v'.
+         ^^^^^^  
+      D' is a proper subderivation of D
+
+  Consider cases of  e?  v?  D?
+  1 vote for e
+  1 tentative vote for v
+  1 vote (me) for D
+
+  Consider cases of the rule concluding D:
+
+    • eval-const:
+
+       e ⇓ v        Given
+       e = n        By inversion
+       v = n        By inversion
+       
+       n ⇓big n     By big-const
+       e ⇓big v     By above equations
+
+["Inversion" (backwards)]
+[Applying the rule forwards]
+ 
+    • eval-add:
+           e ⇓ v                  Given
+[Inversion: line up the conclusion with what we have
+            get the premises]
+	   e = (+ e1 e2)          By inversion
+	   v = n1+n2              By inversion
+D1 derives e1 ⇓ n1                By inversion
+D2 derives e2 ⇓ n2                By inversion
+
+           e1 ⇓big n1             By IH on D1  (D1 < D)
+	                           with e1 as e',
+				   n1 as v'
+	   
+	   e2 ⇓big n2             By IH on D2  (D2 < D)
+	                           with e2 as e',
+				   n2 as v'
+	   (+ e1 e2) ⇓big n1+n2   By big-add
+	   e ⇓big v               By above equations
+
+                                                      []
+
++------------+
+|  e ⇓huh v  | e evaluates to v in a...strange way
++------------+
+                          e1 ⇓huh n1   e2 ⇓huh n2
+––––––––– huh-zero        ––––––––––––––––––––––– huh-add
+n ⇓huh 0                   (+ e1 e2) ⇓huh n1+n2
+
+Is  ⇓huh  sound with respect to  ⇓ ?
+
+Is  ⇓huh  complete with respect to  ⇓ ?
+
+
+
+lec4.pdf Section 3, Typing:
+
+Expressions   e ::= n
+                  | (+ e e)
+Types         A ::= int
+
++–––––––+
+| e : A | expression e has type A
++–––––––+
+                           e1 : int   e2 : int
+   ––––––– type-const      ––––––––––––––––––– type-add
+   n : int                   (+ e1 e2) : int
+
+lec4.pdf Exercise 1*:
+"State and prove (by induction)
+that every expression has type int."
+
+State:
+
+  For all expressions e,
+  e : int.
+
+Prove:
+
+  Recommended exercise.
+
+
+
+**Read the rest of lec4.pdf Section 3**
+
+
+Plan for Week 4: Start discussing Gentzen's natural deduction.
+
+
+QUESTIONS ABOUT THE ASSIGNMENT:
+
+a1 Conjecture 3.1:
+
+Consider cases of ___________   ◄◄ fill this in
+
+  • Case _________________  ◄◄ fill this in
+
+You will need *two* cases (or more? probably two).
+
+
+If you are using TeX, "drawing" a parse tree using a verbatim environment is totally fine.  It doesn't have to look great.
+  
+\begin{verbatim}
+     asdf________________
+    /    \               \
+  sadfj   askdjfkdsa     ijasdfjisda
+ /     \
+ads    jadsfj
+\end{verbatim}
+
+In a1 Section 3, there are 4 parts:
+
+1. the proof of Conjecture 3.1
+
+2. Part (a)
+
+3. Part (b)
+
+4. Part (c)
+
+
+
+

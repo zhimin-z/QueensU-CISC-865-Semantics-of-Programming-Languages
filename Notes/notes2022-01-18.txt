@@ -1,0 +1,206 @@
+465/865 Tuesday 2022-01-18
+Please mute your microphone when not speaking
+This lecture is recorded until about the 50-minute mark
+
+Still on lec2.pdf
+
+Reminders from 2022-01-14:
+
+In a grammar, a repeated nonterminal (meta-variable) can produce different strings:
+
+(Same grammar as 2022-01-14)
+  integers      n ∈ ℤ
+  expressions   e ::= n
+                    | (+ e e)
+                         ^ ^
+			 these two occurrences
+			 can produce different strings
+  (+ 3 4) is an expression, even though 3 ≠ 4
+This grammar is *equivalent* to
+
+  integers      n ∈ ℤ
+  expressions   e ::= n
+                    | (+ e1 e2)
+
+In a RULE (horizontal line), a repeated meta-variable must be instantiated (replaced) with the same thing.
+
+This is similar to mathematical equations: in
+
+    2x = x - 3
+     ^   ^
+the two occurrences of x must refer to the same number.
+
+    n = n1 + n2               
+  ––––––––––––––– step-add
+  (+ n1 n2) |-> n
+
+So, using step-add, we can have
+
+   3 = 1 + 2
+  ––––––––––––– step-add
+  (+ 1 2) |-> 3
+         steps to
+
+because the occurrences of n1 match up, etc.
+but not
+
+   6 = 1 + 5
+  –––––––––––––– step-add???
+  (+ 1 2) |-> 6
+
+because 2 ≠ 5.  Not a valid use of the step-add rule
+
+
+
+Rules again:
+
++------------+
+|  e |-> e'  |   e steps to e'
++------------+
+
+    n = n1 + n2               
+  ––––––––––––––– step-add
+  (+ n1 n2) |-> n
+
+       e1 |-> e1'
+–––––––––––––––––––––––– step-add-left
+(+ e1 e2) |-> (+ e1' e2)
+
+       e2 |-> e2'
+–––––––––––––––––––––––– step-add-right
+(+ e1 e2) |-> (+ e1 e2')
+
+
+
+Derivation from end of last lecture:
+
+            7 = 5 + 2 
+          ––––––––––––– step-add
+          (+ 5 2) |-> 7
+   ––––––––––––––––––––––––––––– step-add-right
+   (+ 1  (+ 5 2)) |-> (+ 1 7)
+
+
+Alternative way to represent the derivation:
+a line-by-line proof in the format
+
+thing we know         justification1
+thing we know         justification2
+
+In English, easy to skip justifications.
+Thing we know.  By ..., Thing we know.  By ..., Thing we know.
+
+Each line can use things we proved in the previous lines.
+
+7 = 5 + 2                   arithmetic
+(+ 5 2) |-> 7               By rule step-add
+(+ 1 (+ 5 2)) |-> (+ 1 7)   By rule step-add-right
+
+
+Derive (+ (+ 10 3) (+ 1 1)) |-> ????
+Use step-add? no
+Use step-add-left? Maybe
+
+          13 = 10 + 3
+        ––––––––––––––– step-add
+        (+ 10 3) |-> 13
+–––––––––––––––––––––––––––––––––––––––– step-add-left
+(+ (+ 10 3) (+ 1 1)) |-> (+ 13 (+ 1 1))
+(+ e1       e2     )
+e1 = (+ 10 3)
+e2 = (+ 1 1)
+Note: e2 ≠ 2
+
+                                        n = 13
+          n = 10 + 3                    e1' = n
+        –––––––––––––––– step-add
+        (+ 10 3) |-> e1'
+–––––––––––––––––––––––––––––––––––––––– step-add-left
+(+ (+ 10 3) (+ 1 1)) |-> (+ e1' (+ 1 1))
+
+Exercise: Write the above derivation line-by-line
+
+
+=================================================
+Metatheory   (usually written without the hyphen)
+(Section 3, lec2.pdf)
+
+"Theory" = our mathematical/logical definitions: grammars, rules
+"Meta" = "above", "on top of"
+"Metatheory" = theory on top of theory:
+               theory about the grammars and rules
+
+We do metatheory so we know that the theories we build behave the way we think they do.
+
+Example of metatheory:
+
+Theorem 1.
+For all integers n, it is the case that  (+ n n) |-> 2n.
+
+Proof.
+
+(+ n  n ) |-> 2n       By step-add with n as n1,
+                                        n as n2,
+                                        "2n as n"??
+Name clash, because I'm already using n, but
+step-add also uses n
+
+Workarounds:
+  Simplest one: Rename n in the proof
+
+3 = 1 + 2          By arithmetic
+(+ 1 2) |-> 3      By step-add
+
+Theorem 1.
+For all integers m, it is the case that  (+ m m) |-> 2m.
+
+Let n = m + m
+(+ m m) |-> n          By step-add with m as n1,
+                                        m as n2,
+					n as n.
+(+ m m) |-> m + m      By above equation
+2m = m + m             By arithmetic
+(+ m m) |-> 2m         By above equation
+[End of proof.]
+
+Temporarily rename meta-variable in rule:
+    k = n1 + n2               
+  ––––––––––––––– step-add
+  (+ n1 n2) |-> k
+
+(Renaming a rule like this doesn't change its meaning.
+For those who recall CISC 204:
+
+  ∀X φ(X) ≡ ∀Y φ(Y)
+)
+
+Theorem 1.
+For all integers n, it is the case that  (+ n n) |-> 2n.
+
+Proof.
+ "Assume n is an integer." (optional) (∀i)
+  Let k = n + n
+  (+ n n) |-> k      By step-add with n as n1,
+                                      n as n2,
+				      k as k
+  (+ n n) |-> n + n  By above equation
+  2n = n + n         By arithmetic
+  (+ n n) |-> 2n     By above equation
+[End of proof.]
+
+Definitely fine to collapse the arithmetic step:
+  (+ n n) |-> n + n  By above equation
+  (+ n n) |-> 2n     By arithmetic
+
+
+Conjecture 0.
+For all integers n, it is the case that  (- n n) |-> 0.
+
+We didn't get to this during lecture.
+This conjecture is false for multiple reasons:
+
+1. (- n n) is not an expression in our grammar.
+   Therefore it is not possible to derive (- n n) |-> ... .
+
+2. Even if we added (- e e) to the grammar of expressions, there is no rule that can derive
+   (- n n) |-> ... .

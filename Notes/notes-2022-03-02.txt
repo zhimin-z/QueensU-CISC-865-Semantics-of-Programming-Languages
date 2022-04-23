@@ -1,0 +1,325 @@
+465/865 Wednesday 2022-03-02
+Jana Dunfield
+This lecture is (hopefully) recorded until about the 50-minute mark
+
+https://stream.queensu.ca/hapi/v1/contents/permalinks/MacCorryD216/view
+
+Today: Continuing with lec10.pdf.
+lec10.pdf: From addition to Lλ (L lambda, a programming language with lambda)
+
+
+program
+variables    x, y, z
+
+integers     n
+
+values       v ::= n
+                 | True
+		 | False
+		 | (Lam x e)
+		 | x                   -- maybe?
+
+expressions  e ::= n
+                 | (+ e e)
+                 | (- e e)
+		 | (= e e)
+		 | (< e e)
+		 | True
+		 | False
+		 | (Ite e e e)         -- if-then-else (Ite e1 e2 e3)  if e1 then e2 else e3
+		 | (Lam x e)           -- Lambda, anonymous function that takes an argument x and evaluates the body e
+		 | (Call e e)          -- (Call e1 e2)  call the function e1 with argument e2
+		 | x                   -- program variable
+
+
++----------+
+|  e ⇓ v   |  e evaluates to a value v (big-step)
++----------+
+
+  ––––––––––––– eval-const
+     n ⇓ n
+
+  e1 ⇓ n1     e2 ⇓ n2
+  ––––––––––––––––––– eval-add
+  (+ e1 e2) ⇓ n1 + n2
+
+  e1 ⇓ n1     e2 ⇓ n2
+  ––––––––––––––––––– eval-sub
+  (- e1 e2) ⇓ n1 - n2
+
+  e1 ⇓ n1     e2 ⇓ n2
+  ––––––––––––––––––– eval-equals
+  (= e1 e2) ⇓ n1 = n2                     -- where n1 = n2 is True if n1 is equal to n2, and False if n1 ≠ n2
+                                          -- "mathematical equality"
+
+  e1 ⇓ n1     e2 ⇓ n2                     -- where n1 < n2 is True if n1 is less than n2, and False if n1 ≥ n2
+  ––––––––––––––––––– eval-lessthan
+  (< e1 e2) ⇓ n1 < n2
+
+   –––––––––––––– eval-true
+   True ⇓ True
+
+   –––––––––––––– eval-false
+   False ⇓ False
+   
+  (< 3  2)  ⇓
+  3 is e1, 2 is e2
+Example:
+   –––––– eval-const    ––––––– eval-const
+   3 ⇓ 3                2 ⇓ 2
+   –––––––––––––––––––––––––––––––––– eval-lessthan
+   (< 3 2) ⇓ 3 < 2
+
+   –––––– eval-const    ––––––– eval-const
+   3 ⇓ 3                2 ⇓ 2
+   –––––––––––––––––––––––––––––––––– eval-lessthan
+   (< 3 2) ⇓ False
+
+   ––––––––––––––––––––– eval-lam
+   (Lam x e) ⇓ (Lam x e)
+
+   –––––––––––––– eval-false
+   False ⇓ False
+
+   e ⇓ True      ethen ⇓ v                      e ⇓ False     eelse ⇓ v
+   –––––––––––––––––––––––– eval-ite-then       –––––––––––––––––––––––– eval-ite-else  
+   (Ite e ethen eelse) ⇓ v		        (Ite e ethen eelse) ⇓ v
+
+   e1 ⇓ (Lam x ebody)     e2 ⇓ v2    [v2/x]ebody ⇓ v
+   –––––––––––––––––––––––––––––––––––––––––––––––––– eval-call
+             (Call e1 e2) ⇓ v
+
+lec10.pdf section 2
+
+Small-step:
+
+e1 |-> e2
+e2 |-> e3
+e3 |-> e4
+e4 |-> v           e1 ⇓ v
+
+  +--------------+
+  |  e |-> e'    |   e steps to e'
+  +--------------+
+
+Previously:
+
+  ––––––––––––––––––––– step-add
+  (+ n1 n2) |-> n1 + n2                        (+ 2 3) |-> 5
+
+         e1 |-> e1'
+  –––––––––––––––––––––––– step-add-left
+  (+ e1 e2) |-> (+ e1' e2)
+
+         e2 |-> e2'
+  –––––––––––––––––––––––– step-add-right
+  (+ e1 e2) |-> (+ e1 e2')
+
+
+
+
+  –––––––––––––– step-add
+  (+ 1 2) |-> 3
+  ––––––––––––––––––––––––––––– step-add-left
+    (+ (+ 1 2) 3) |-> (+ 3 3)
+
+  –––––––––––––––––––––– step-add
+  (+ 3 3) |-> 6
+
+
+  (+ (+ 1 2) 3) ⇓ 6
+
+Subtraction, equals, less-than, True, False, Ite, Lam, Call
+
+
+
+
+  ––––––––––––––––––––– step-subtract
+  (- n1 n2) |-> n1 - n2                        (+ 2 3) |-> 5
+
+         e1 |-> e1'
+  –––––––––––––––––––––––– step-subtract-left
+  (- e1 e2) |-> (- e1' e2)
+
+         e2 |-> e2'
+  –––––––––––––––––––––––– step-subtract-right
+  (- e1 e2) |-> (- e1 e2')
+
+Could do the same for =, <,
+
+
+  ––––––––––––––––––––––––––––––––– step-ite-then
+  (Ite True eThen eElse) |-> eThen
+
+  ––––––––––––––––––––––––––––––––– step-ite-else
+  (Ite False eThen eElse) |-> eElse
+
+
+  (Ite (< 1 2) 100 200) |-> (Ite True 100 200)
+
+  (Ite True 100 200) |-> 100
+
+  (< 1 2) |-> True    (assume we can derive this)
+  
+                    e |-> e'
+  ––––––––––––––––––––––––––––––––––––––––––––– step-ite-new
+  (Ite e eThen eElse) |-> (Ite e' eThen eElse)
+
+
+                (< 1 2) |-> True
+  ––––––––––––––––––––––––––––––––––––––––––––– step-ite-new
+  (Ite (< 1 2) 100 200) |-> (Ite True 100 200)
+
+  –––––––––––––––––––––––––– step-ite-then
+  (Ite True 100 200) |-> 100
+
+
+  if 1 < 2 then
+    100 + 1
+  else
+    200 + 1
+
+                eThen |-> eThen'
+  –––––––––––––––––––––––––––––––––––––––––––– ??
+  (Ite e eThen eElse) |-> (Ite e eThen' eElse)
+
+
+  factorial(n) = if n > 0 then n * factorial(n - 1) else 1
+
+   
+
+  ––––––––––––––––––––– step-add
+  (+ n1 n2) |-> n1 + n2
+
+  ––––––––––––––––––––– step-subtract
+  (- n1 n2) |-> n1 - n2                        (+ 2 3) |-> 5
+
+  ––––––––––––––––––––––––––––––––– step-ite-then
+  (Ite True eThen eElse) |-> eThen
+
+  ––––––––––––––––––––––––––––––––– step-ite-else
+  (Ite False eThen eElse) |-> eElse
+
+Split the |-> judgment into two:
+
+  |->
+
+  |->R                 reduction rules
+ 
+
+  ––––––––––––––––––––– red-add
+  (+ n1 n2) |->R n1 + n2
+
+  ––––––––––––––––––––– red-subtract
+  (- n1 n2) |->R n1 - n2
+
+  ––––––––––––––––––––––––––––––––––––––––––––– red-call-name
+  (Call (Lam x eBody) eArg) |->R [eArg/x]eBody               (call-by-name)
+
+  ––––––––––––––––––––––––––––––––––––––––––––– red-call-value
+  (Call (Lam x eBody) vArg) |->R [vArg/x]eBody               (call-by-value)
+
+  (Call (Lam x (+ x x)) 5) |->R  [5/x](+ x x)
+                               = (+ 5 5)
+
+  (+ 5 5) |-> 10
+
+  ––––––––––––––––––––––––––––––––– red-ite-then
+  (Ite True eThen eElse) |->R eThen
+
+  –––––––––––––––––––––––––––––––––– red-ite-else
+  (Ite False eThen eElse) |->R eElse
+
+
+  –––––––––––––– red-add
+  (+ 3 5) |->R 8  
+
+  (+ (+ 1 2) 10) |-> (+ 3 10)        derivable
+  (+ 3 10) |-> 13
+
+  (+ (+ 1 2) 10) |->R (+ 3 10)       not derivable
+
+Add |->R judgment, add rules red-add, red-subtract, red-ite-then, red-ite-else, ...
+
+Delete step-add, step-subtract, step-ite-then, step-ite-else, ...
+Delete step-add-left, step-add-right, step-subtract-left, step-subtract-right, step-ite-new, ...
+  (+ 1 2) |->R 3
+
+  –––––––––––––
+  (+ 1 2) |-> 3
+
+                                  –––––––––––––– red-add
+       e  |->R  e'                (+ 1 2) |->R 3
+  ––––––––––––––––––– step-context     –––––––––––––––––––––––––––––
+     C[e] |-> C[e']                    (+ (+ 1 2) 10) |-> (+ 3 10)
+     ^                                    ^^^^^^^            ^
+     ?                                       e               e'
+
+Evaluation context    (red-add, red-sub)
+
+      (+ 1 2) |->R 3
+
+                                    e |->R e'
+      (+ 1 2) |-> 3             ––––––––––––––––– eval-context
+                                 C[e] |-> C[e']
+      
+1. Want to do reductions on the entire expression:
+
+      +
+     / \
+    1   2
+
+2. e2 =  (+ (+ 1 2) 3)               (+ (+ 1 2) 3) |-> (+ 3 3)
+   Towards the left child of a +
+
+      +          +               C   ::=   []          1.     root  
+     / \        / \                    |   (+ C e)     2.
+    +   3      3   3
+   / \
+  1   2
+   (+ 1 2) |->R 3
+  ––––––––––––––––– eval-context
+   C[e] |-> C[e']
+   e2   |-> (+ 3 3)
+   
+   (+ (+ 1 2) 3)  =  C[e]
+
+   C[e] = e2
+      C = (+ [] 3)
+   C[e] = (+ e 3) = (+ (+ 1 2) 3)
+      e = (+ 1 2)
+     e' = 3
+  C[e'] = (+ e' 3) = (+ 3 3)
+
+C   ::=   []          1.  stay at the root
+      |   (+ C e)     2.  to the left child of a +
+      |   (+ e C)     3.  to the right child of a +
+
+ (+ 3 (+ 3 4))                        +
+                                     / \
+ (+ (+ 1 2) (+ 3 4))                +    +
+                                   / \  / \
+                                  1  2  3  4
+              (+ 3 4) |->R 7
+  ––––––––––––––––––––––––––––– step-context
+                 C[e] |-> C[e']
+  (+ (+ 1 2) (+ 3 4)) |-> (+ (+ 1 2) 7)
+
+  C    =   (+ (+ 1 2) []     )
+  C[e] =   (+ (+ 1 2) (+ 3 4))
+     e =   (+ 3 4)
+    e' =   7
+  (+ (+ 1 2) []     )[7]   = (+ (+ 1 2) 7)
+  C                  [e']  = (+ (+ 1 2) 7)
+
+          
+          
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,482 @@
+\gdef\lecturenumber{a2}
+\gdef\subsectioncounters{1}
+\input preamble.tex
+
+\newcommand{\blanks}[1]{\ensuremath{\dashuline{\hspace{#1}}}}
+
+\newcommand{\sqplusoneexp}[1]{\LP \textvtt{SqPlusOne}~{#1}\RP}
+
+\begin{document}
+\date{due: Friday, 2022--02--11}
+\Chapter{\vspace*{-3ex}Assignment 2}
+\vspace*{-2ex}
+
+If you wish, you may work in a group of up to 3 on this assignment.
+Only one member needs to submit the assignment (but make sure at least one of you does),
+but \textbf{each} group member must \textbf{also} submit a brief statement,
+listing all the group members and describing
+the approximate division of labour between group members, including an estimate of how
+many hours you spent.  For example, if you are in a group of 2, we need one assignment
+plus two statements, submitted separately.
+
+If you are working alone, you may write an estimate the time you spent, but it is not required
+(and no separate statement is required).
+
+\bigskip
+
+{\noindent ID number(s):} \\[1ex]
+
+{\noindent Name(s) (optional):}
+
+
+\section*{Late policy}
+
+Assignments may be submitted up to 24 hours late with no penalty.
+
+
+\section*{Scanning}
+
+Submitting a legible scan is acceptable, but please ensure that the total file size is less than 30 MB.
+It is preferable to combine pages into a single PDF file.
+
+
+\clearpage
+\section{Language extension}
+\label{sec:lang-ext}
+
+Consider the following language, defined by a grammar and a big-step evaluation judgment.
+The big-step evaluation given is incomplete, in the informal sense that it has no rules saying how to evaluate
+$\sqplusoneexp{e}$.
+%
+\begin{grammar}
+  integers & $n$
+  \\
+  values & $v$ &\bnfas& $n$
+  \\
+  expressions & $e$ &\bnfas& 
+      $
+      n
+      \bnfaltBRK
+      \plusexp{e_1}{e_2}
+      \bnfaltBRK
+      \sqplusoneexp{e}
+      $
+\end{grammar}
+
+\judgbox{e \down v}{expression $e$ evaluates to value $v$}
+\vspace*{-1.2ex}
+    \begin{mathpar}
+      \Infer{eval-const}
+          {}
+          {n \down n}
+      \and
+      \Infer{eval-add}
+          {
+            e_1 \down n_1
+            \\
+            e_2 \down n_2
+          }
+          {\plusexp{e_1}{e_2} \down n_1 + n_2}
+    \end{mathpar}
+
+{\noindent \textbf{Question 1(a).}}
+Roughly following the structure of eval-add, design a rule ``eval-sqplusone'' such that
+evaluating $\sqplusoneexp{e}$ will evaluate $e$, square the result, and add one.  Similar to how we use the
+standard mathematical notation for addition, $n_1 + n_2$, in eval-add, you may use the notation $n^2$ for the square of $n$.
+\[
+     \Infer{eval-sqplusone}
+           {
+              % comment out next line by inserting % at the beginning,
+              %   then add your solution just before the `}'
+              \hspace*{220pt}
+           }
+           {
+             \sqplusoneexp{e} \down
+             % add your solution here (TeX doesn't care about line breaks UNLESS they are repeated)
+             %
+           \hspace*{20pt}
+          }
+\]
+
+\clearpage
+
+\section{Proof techniques}
+
+These questions are not about complete proofs.
+In some of the questions, the conjecture is not even true, or you
+have not been given enough information to do a complete proof.
+Instead, they ask you to make progress on several different proof attempts
+by using a specific proof technique.
+
+In all of these questions, the grammar of expressions is the \emph{extended}
+grammar (\Sectionref{sec:lang-ext}), and the system of rules deriving $e \down v$ includes the \emph{three} rules eval-const, eval-add, eval-sqplusone.
+
+\textbf{Question 2(a).}
+Using the extended grammar of expressions (\Sectionref{sec:lang-ext}),
+list the cases produced by \emph{case analysis on $e_2$}.
+The cases must correspond to the grammar.
+Please do not attempt to complete the proof.
+
+\begin{conjecture*} ~\\
+  For all expressions $e_1$, $e_2$ and $e_3$, \\
+  if $\plusexp{e_1}{e_3} \down v$ and $\sqplusoneexp{e_2} \down v + 1$ \\
+  then $v = 42$.
+\end{conjecture*}
+\begin{proof}
+  Consider cases of $e_2$.
+
+  \begin{itemize}
+  \item Case
+  \end{itemize}
+
+\vspace*{10ex}
+\end{proof}
+
+
+\textbf{Question 2(b).}
+Suppose that we want to attempt to prove the above conjecture by induction on $e_3$.
+Write the appropriate induction hypothesis.
+
+
+\vspace*{10ex}
+
+
+\textbf{Question 2(c).}
+In this question, your goal is to derive
+\[
+  \plusexp{\plusexp{e_{11}}{7}}{e_2} \down 7
+\]
+The following lines are given.  Use equations, arithmetic,
+and the rules eval-const, eval-add to derive the goal.
+
+\begin{llproof}
+  \Pf{}{}{e_{11} \down n_{11}}  {Given}
+  \Pf{}{}{e_{2} \down n_{2}}  {Given}
+  \Pf{}{}{n_{11} = -1}  {Given}
+  \Pf{}{}{n_{2} = 1}  {Given}
+  \Pf{}{}{\hspace*{150pt}}  {}
+\end{llproof}
+
+\vspace*{20ex}
+
+
+\textbf{Question 2(d).}
+In this question, use \emph{inversion}: write down all the facts given by inverting
+on rule eval-sqplusone.  (I can't give you a specific goal because what you get depends on your rule, eval-sqplusone.)
+
+\begin{llproof}
+  \Pf{}{}{\sqplusoneexp{e_1} \down n_1}  {Given}
+  \Pf{}{}{\hspace*{150pt}}  {}
+~\\
+~\\
+\end{llproof}
+
+
+
+\clearpage
+
+\section{Typing}
+
+\begin{grammar}
+  types & $A$ &\bnfas& $\Nat \bnfaltBRK \Int$
+\end{grammar}
+
+\judgbox{e : A}{expression $e$ has type $A$}
+\begin{mathpar}
+    \Infer{type-natconst}
+        {n \geq 0}
+        {n : \Nat}
+    \and
+    \Infer{type-const}
+        {}
+        {n : \Int}
+    \\
+    \Infer{type-sqplusone}
+        {e : \Int
+        }
+        {\sqplusoneexp{e} : \Nat}
+    \and
+    \Infer{type-add}
+        {e_1 : \Int
+          \\
+          e_2 : \Int
+        }
+        {\plusexp{e_1}{e_2} : \Int}
+    \and
+    \Infer{type-sub}
+        {e : \Nat}
+        {e : \Int}
+\end{mathpar}
+
+\medskip
+
+Prove the following conjecture.
+\textbf{Hint:} Use induction.
+
+\begin{conjecture} ~\\
+  For all expressions $e$,
+  it is the case that $e : \Int$.
+\end{conjecture}
+\begin{proof} ~
+
+  \vfill
+\end{proof}
+
+
+\clearpage
+
+\section{Natural deduction}
+
+A simplified system of natural deduction, omitting both kinds of quantification, 
+is shown in \Figureref{fig:nd}.  This is the starting point for this question.
+
+\begin{figure}[h]
+\fontsz{10pt}{
+\begin{grammar}
+  atomic formulas
+  &
+  $P, Q$
+  \\
+  formulas
+  &
+  $A, B, C$
+  &\bnfas&
+  $P
+  \bnfalt
+  A \imp B
+  \bnfalt
+  A \AND B
+  \bnfalt
+  A \OR B
+  \bnfalt
+  \trueformula
+  \bnfalt
+  \falseformula
+  \bnfalt
+  \lnot A
+  $
+\vspace{-2ex}
+\end{grammar}
+}
+
+\judgbox{A \True}{$A$ is true}
+  \vspace*{-3ex}
+\begin{mathpar}
+  \Infer{$\imp$Intro\noteassume{\fighi{x}}}
+       {
+         \NDassume{\fighi{x}}{A \True}{
+           B \True
+         }
+       }
+       {(A \imp B) \True}
+  \and
+  \Infer{$\imp$Elim}
+       {
+         A \imp B \True
+         \\
+         A \True
+       }
+       {B \True}
+  \vspace{-2ex}
+  \\
+  \Infer{$\trueformula$Intro}
+       {
+       }
+       {
+         \trueformula \True
+       }
+  ~~~\text{(no elim.\ for $\trueformula$)}
+  ~~~~~~~~
+  \text{(intro.\ for $\falseformula$: see $\lnot$Elim below)}
+  ~~~~~
+  \Infer{$\falseformula$Elim}
+       {
+         \falseformula \True
+       }
+       {
+         C \True
+       }
+  \\
+  \Infer{$\AND$Intro}
+       {
+         A \True
+         \\
+         B \True
+       }
+       {A \AND B \True}
+  \and
+  \Infer{$\AND$Elim1}
+       {
+         A \AND B \True
+       }
+       {A \True}
+  ~~~~~
+  \Infer{$\AND$Elim2}
+       {
+         A \AND B \True
+       }
+       {B \True}
+%   \\
+%   \Infer{$\forall$Intro\noteassume{\fighi{x}}}
+%        {
+%          \NDassume{\fighi{x}}{a:\Nat}{
+%            B \True
+%          }
+%        }
+%        {(\All{a:\Nat} B) \True}
+%   ~~~~~
+%   \Infer{$\forall$Elim}
+%        {
+%          (\All{a:\Nat} B) \True
+%          \\
+%          n : \Nat
+%        }
+%        {[n/a]B \True}
+  \\
+  \Infer{$\OR$Intro1}
+       {
+         A \True
+       }
+       {A \OR B \True}
+  \and
+  \Infer{$\OR$Intro2}
+       {
+         B \True
+       }
+       {A \OR B \True}  
+  \and
+  ~~
+  \Infer{$\OR$Elim\noteassume{\fighi{x},\fighi{y}}}
+       {
+         A \OR B \True
+         \\
+         \NDassume{\fighi{x}}{A \True}
+            {
+              C \True
+            }
+         \\
+         \NDassume{\fighi{y}}{B \True}
+            {
+              C \True
+            }
+       }
+       {
+         C \True
+       }
+  \\
+%   \Infer{$\exists$Intro}
+%        {
+%          n : \Nat
+%          \\{}
+%          \big([n/a]B\big) \True
+%        }
+%        {(\Exists{a:\Nat} B) \True}
+%   ~~~~~
+%   \Infer{$\exists$Elim\noteassume{\fighi{x,y}}}
+%        {
+%          (\Exists{a:\Nat} B) \True
+%          \\{}
+%          \ndassume{\fighi{x}}{a:\Nat}{
+%          \NDassume{\fighi{y}}{B \True}{
+%            C \True
+%          }}
+%        }
+%        {C \True}
+%    \\
+   \Infer{$\lnot$Intro\noteassume{x}}
+        {\NDassume{x}{A \True}{
+            \falseformula \True
+          }
+        }
+        {(\lnot A) \True}
+   \and
+  \Infer{$\lnot$Elim}
+      {
+        A \True
+        \\
+        (\lnot A) \True
+      }
+      {\falseformula \True}
+\vspace*{-3ex}
+\end{mathpar}
+
+\caption{Natural deduction, without quantifiers}
+\label{fig:nd}
+\end{figure}
+
+% \clearpage
+
+\newcommand{\gentzeniff}{\mathrel{\supset\subset}}
+
+\textbf{Question 4(a).}
+Derive
+$
+\big( (Q \AND P) \OR P \big) \imp (Q \OR P)
+\True
+$.
+
+
+\vspace*{24ex}
+
+
+\clearpage
+
+\textbf{Question 4(b).}
+Complete the following 
+derivation of $(\lnot P) \imp (P \imp \falseformula) \True$.
+\[
+    \Infer{$\imp$Intro\noteassume{x}}
+      {
+        \ndassume{\hspace*{-6ex}x}{\lnot P \True}{
+          \Infer{$\imp$Intro\noteassume{y}}
+             {
+               \ndassume{y}{P \True}{
+%
+%
+                % comment out following line and complete the derivation here
+                \vspace*{60pt}\hspace*{200pt}
+               }
+             }
+             {
+               (P \imp \falseformula) \True
+             }
+           }
+           \hspace*{-7ex}
+      }
+      {(\lnot P) \imp (P \imp \falseformula) \True}
+\]
+
+
+
+
+\textbf{Question 4(c).}  Derive $(P \imp \falseformula) \imp (\lnot P) \True$.
+\[
+  % comment out following line and write the derivation here
+  \vspace*{150pt}
+\]
+
+\textbf{Question 4(d).}  Derive $P \imp (\lnot \lnot P) \True$.
+\[
+  % comment out following line and write the derivation here
+  \vspace*{150pt}
+\]
+
+
+
+\vspace*{5ex}
+
+\textbf{Question 4(e). (BONUS)}
+Do we need negation?  What could we use instead?
+\textbf{Hint:} Think about some of the previous questions.
+
+
+
+
+
+
+\end{document}
+
+
+% Local Variables:
+% TeX-master: "a2"
+% End:

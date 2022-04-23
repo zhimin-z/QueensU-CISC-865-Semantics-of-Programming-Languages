@@ -1,0 +1,289 @@
+465/865 Wednesday 2022-01-26
+Please mute your microphone when not speaking
+This lecture is recorded until about the 50-minute mark
+
+Soundness and completeness (lec4.pdf)
+
+
+"Your reasoning is unsound": what does this mean?
+
+"you did something bad"
+"you concluded something false/wrong"
+
+...how do you know it was wrong?
+
+"My logic tells me I should do something bad"
+
+...how do you know it's bad?
+
+
+
+We have some mental model of what conclusions we *should* be making.
+If we construct a formal system that contradicts our mental model,
+then either the formal system or the mental model is flawed.
+
+For example, a logical system with this rule
+
+φ ::=  ... logical formulas...
+
+   —————— everything
+   φ true
+
+(meaning "φ is true") contradicts my mental model of what "true" should mean,
+because it says everything is true, including things that should be false:
+
+   –––––– everything
+   ⊥ true                "⊥" meaning "falsehood"
+
+It's also not useful: Reasoning should lead us to some conclusions but not every possible conclusion.
+
+Similarly, a logical system with *no* rules is not useful.
+
+
+
+If we are making up a new logic and it concludes things that we know should be false,
+we might say
+
+  "our new logic is unsound"
+
+This means: unsound *with respect to* our mental model,
+comparing a formal system (theory, set of rules) (our new logic) to an informal one (our mental model).
+
+
+
+
+
+
+The kind of soundness (and unsoundness) that we will work with in 465/865
+is:
+  soundness of a theory (formal system, set of rules)
+  with respect to
+  some other theory.
+
+*Usually*, the "some other theory" will be an existing theory that we trust in some way.
+Maybe the existing theory is considered good or useful.
+Maybe the existing theory has been experimentally validated ("sound with respect to reality")
+
+  new theory                      existing theory
+  +------------------+           +------------------+
+  |                  |           |                  |
+  |                  |           |                  |
+  |                  |           |                  |
+  |                  |           |                  |
+  |                  |           |                  |
+  |                  |           |                  |
+  +------------------+           +------------------+
+
+"the new theory is sound with respect to the existing theory"
+means
+"anything derivable in the new theory  is  derivable in the old theory"
+
+
+  new theory                      existing theory
+  +------------------+           +------------------+
+  |                  |           |                  |
+  |                  |           |    3 ⇓ 3         |
+  |    3 ⇓ 3         |           |                  |
+  |                  |           |    (+ 1 2) ⇓ 3   |
+  | (+ 1 2) ⇓ 3      |           |                  |
+  |                  |           |                  |
+  +------------------+           +------------------+
+               ——————————————►►►►
+	        soundness:
+		everything in the new theory on the left
+		also appears in the existing theory on the right
+
+Example:
+
+  new theory                      existing theory
+  +------------------+           +------------------+
+  |                  |           |                  |     ⊤  =  truth
+  |    ⊥ true        |           |     ⊤ true       |     ⊥  =  falsehood
+  |                  |           |                  |
+  |                  |           |                  |
+  |                  |           |   ⊤ ∧ ⊤ true     |
+  |                  |           |                  |  ⊥ true
+  +------------------+           +------------------+
+               ——————————————►►►►
+	        soundness:
+		everything on the left
+		also appears on the right
+		
+Is this new theory sound?
+⊥ true  is in the new theory   but   ⊥ true is not in the existing theory
+
+
+
+  new theory                      existing theory
+  +------------------+           +------------------+
+  |                  |           |                  |
+  |                  |           |    3 ⇓ 3         |
+  |    3 ⇓ 3         |           |                  |
+  |                  |           |                  |
+  |                  |           |                  |
+  |                  |           |                  |
+  +------------------+           +------------------+
+               ◄◄◄◄———————————----------
+	        completeness:
+		everything on the right
+		also appears on the left
+
+Example:
+
+  –––––– newtheoryrule
+  ⊤ true
+
+  new theory                      existing theory
+  +------------------+           +------------------+
+  |                  |           |                  |
+  |                  |           |   ⊤ true         |
+  |    ⊤ true        |           |                  |
+  |                  |           |   ⊤ ∧ ⊤ true     |
+  |                  |           |                  |
+  |                  |           |           ...    |
+  +------------------+           +------------------+
+nothing else in new theory
+
+               ◄◄◄◄———————————----------
+	        completeness:
+		everything on the right
+		also appears on the left
+[is this new theory sound?  yes, the only thing in the new theory is  ⊤ true  and  ⊤ true is in the existing theory
+ we proved soundness
+]
+is this new theory complete?  no, because ⊤ ∧ ⊤ true is in the existing theory, but not in the new theory.
+
+(Question: Could we have a judgment "φ false"?
+Yes, it is possible to define "φ false" in a sensible way,
+but the rules would be different from rules for "φ true".
+For example,  "⊥ false" should be derivable under empty assumptions
+(whereas "⊥ true" should *not* be derivable under empty assumptions).
+
+Also, it is possible to define "φ formula", meaning "φ is well-formed".
+For example, we can define rules in which  ∀X q(X)  is well-formed but
+∀X q(Y) is not well-formed because Y is unknown.)
+
+Saying
+"3 ⇓ 3 in the new theory"
+and
+"3 ⇓ 3 in the existing theory"
+is verbose.
+
+To say it more concisely, we annotate the judgment form.
+For example, in lec4.pdf there is a judgment e ⇓2 v. 
+
+e ::= n
+    | (+ e e)
+v ::= n
+
+  new theory ⇓2                   existing theory ⇓
+  +------------------+           +------------------+
+  |                  |           |    3 ⇓ 3         |
+  |                  |           |                  |
+  |   (+ 2 2) ⇓2 4   |           | (+ 2 2) ⇓ 4      |
+  |                  |           |                  |
+  |                  |           |                  |
+  |                  |           |                  |
+  |                  |           |     (+ 1 2) ⇓ 3  |
+  +------------------+           +------------------+
+
+Both theories are meant to mean "thing on the left evaluates to the thing on the right":
+
+  (+ 2 2) ⇓2 4       means "(+ 2 2) evaluates to 4, in the new theory"
+
+  (+ 2 2) ⇓  4       means "(+ 2 2) evaluates to 4, in the existing theory"
+
+What does soundness mean here?
+  For all expressions e and values v,
+  if  e ⇓2 v  then  e ⇓ v.
+Is the new theory sound with respect to the existing theory?  Yes.
+
+What does completeness mean here?
+  For all expressions e and values v,
+  if  e ⇓ v   then  e ⇓2 v.
+Is the new theory complete with respect to the existing theory?  No.
+
+
+
+
+Why do we care about soundness and completeness?
+
+If we prove stuff* about an existing theory,
+and we prove that a new theory is sound with respect to the existing theory,
+the results carry over to the new theory.
+We don't have to do the proof again!
+
+* in a certain form
+
+Suppose we have a proof of this:
+
+  (lec3.pdf) lec4.pdf Theorem 3 (Determinacy of big-step).
+  For all expressions e and values v1 and v2,
+  if e ⇓ v1 and e ⇓ v2
+  then v1 = v2.
+
+Suppose we come up with a new theory "⇓new" and are able to prove soundness:
+
+  Conjecture 1 (Soundness of ⇓new with respect to ⇓).
+  For all expressions e and values v,
+  if e ⇓new v then e ⇓ v.
+  
+Then we can prove determinacy of ⇓new very quickly:
+
+  Conjecture 2 (Determinacy of ⇓new).
+  For all expressions e and values v1 and v2,
+  if e ⇓new v1 and e ⇓new v2
+  then v1 = v2.
+
+  Proof:
+     e ⇓new v1          Given
+     e ⇓ v1             By Conjecture 1
+     e ⇓new v2          Given
+     e ⇓ v2             By Conjecture 1
+     v1 = v2            By lec4.pdf Theorem 3
+
+
+EXAMPLES:
+
+  e ::= n
+      | (+ e e)
+      | (- e e)    ◄◄◄◄ new
+  v ::= n
+
+  +------------+
+  |  e ⇓ v     | e evaluates to v, "trusted" (same as in recent lectures)
+  +------------+
+                          e1 ⇓ n1    e2 ⇓ n2
+   –––––– eval-const      –––––––––––––––––– eval-add
+   n ⇓ n                  (+ e1 e2) ⇓ n1+n2
+
+
+  +------------+
+  |  e ⇓big v  | e evaluates to v in a big language
+  +------------+                       (it has subtraction!)
+
+                            e1 ⇓big n1    e2 ⇓big n2
+   ––––––––– big-const      ––––––––––––––––––––––––– big-add
+   n ⇓big n                   (+ e1 e2) ⇓big n1+n2
+
+   e1 ⇓big n1    e2 ⇓big n2
+   ––––––––––––––––––––––––– big-subtract
+      (- e1 e2) ⇓big n1-n2
+
+Is  ⇓big  sound with respect to  ⇓  ?
+  That is: Does the following hold?
+  For all e and v,
+  If e ⇓big v then e ⇓ v.
+
+  No.  Counterexample: e = (- 1 1), v = 0
+  
+           (- 1 1) ⇓big 0  is derivable
+	   (- 1 1) ⇓ 0     is not derivable
+
+Is  ⇓big  complete with respect to  ⇓  ?
+
+  That is: Does the following hold?
+  For all e and v,
+  If e ⇓ v then e ⇓big v.
+
+

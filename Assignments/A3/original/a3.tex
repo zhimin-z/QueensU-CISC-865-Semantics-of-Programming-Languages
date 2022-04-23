@@ -1,0 +1,796 @@
+\gdef\lecturenumber{a3}
+\gdef\subsectioncounters{1}
+\input preamble.tex
+
+\newcommand{\blanks}[1]{\ensuremath{\dashuline{\hspace{#1}}}}
+
+\begin{document}
+\date{due: Wednesday, 22 March 2022}
+\Chapter{\vspace*{-2ex}Assignment 3}
+
+If you wish, you may work in a group of up to 3 on this assignment.
+Only one member needs to submit the assignment (but make sure at least one of you does),
+but \textbf{each} group member must \textbf{also} submit a brief statement,
+listing all the group members and describing
+the approximate division of labour between group members, including an estimate of how
+many hours you spent.  For example, if you are in a group of 2, we need one assignment
+plus two statements, submitted separately.
+
+If you are working alone, you may write an estimate the time you spent, but it is not required
+(and no separate statement is required).
+
+\bigskip
+
+{\noindent ID number(s):} \\[1ex]
+
+{\noindent Name(s) (optional):}
+
+
+\section*{Late policy}
+
+Assignments may be submitted up to 24 hours late with no penalty.
+
+
+\section*{Scanning}
+
+Submitting a legible scan is acceptable, but please ensure that the total file size is less than 30 MB.
+It is preferable to combine pages into a single PDF file.
+
+\vspace*{15ex}
+
+\textbf{Note:} The question marked with a \textbf{+} is a bonus question,
+and \textbf{it can only add up to 5\% to your mark}.
+You can receive 100\% without doing it.
+
+\clearpage
+
+
+\section{Typing}
+
+In this assignment, we consider the following
+expressions $e$, types $T$ (or $S$), and typing contexts $\Gamma$:
+
+$~$\hspace{-5ex}\begin{minipage}{0.4\linewidth}
+\begin{grammar}
+  % Expressions 
+  & $e$
+  &\bnfas&
+  $
+  \unitexp %\bnfaltBRK \recExp{x}{S}{e}
+  \bnfaltBRK
+  n \bnfalt \plusexp{e}{e} \bnfalt \minusexp{e}{e}
+  \bnfaltBRK
+  \trueexp \bnfalt \falseexp \bnfalt \iteexp{e}{e}{e}
+  \bnfaltBRK
+  \eqexp{e}{e} \bnfalt \ltexp{e}{e}
+  \bnfaltBRK
+  x \bnfalt \lamexp{x}{e} \bnfalt \callexp{e}{e}
+  \bnfaltBRK
+  \pairexp{e}{e} \bnfalt \projexp{1}{e} \bnfalt \projexp{2}{e}
+  \bnfaltBRK
+  \injexp{1}{e} \bnfalt \injexp{2}{e} \bnfaltBRK \caseexp{e}{x}{e}{x}{e}
+  $
+\end{grammar}
+\end{minipage}
+~
+\begin{minipage}{0.22\linewidth}
+\begin{grammar}
+% Types
+&  $S, T$
+&\bnfas&
+$
+\unitty
+\bnfaltBRKn{unit type}
+\Int
+\bnfaltBRKn{type of integers}
+\Bool
+\bnfaltBRKn{type of booleans}
+S -> T
+\bnfaltBRKn{type of functions on $S$ that produce $T$}
+S ** T
+\bnfaltBRKn{type of pairs of one $S$ and one $T$}
+S + T
+% \BRKn{\emph{disjoint union} or \emph{sum} type: contains either an $S$ or a $T$}
+\BRKn{type of a left-injected $S$ or right-injected $T$}
+$
+\\[1ex]
+% Contexts
+& $\Gamma$
+&\bnfas&
+$
+\emptyctx
+\bnfaltBRKn{empty context}
+\Gamma, x : S
+\BRKn{$x$ has type $S$}
+$
+\end{grammar}
+\end{minipage}
+
+\vspace{1em}
+
+Consider the following typing rules given in \Figureref{fig:typing}.
+
+\begin{figure}[th]
+\judgbox{\Gamma |- e : T}{Under assumptions $\Gamma$, expression $e$ has type $T$}
+  \vspace*{-1ex}
+\begin{mathpar}
+  \Infer{type-assum}
+       { (x : S) \in \Gamma
+       }
+       {
+         \Gamma |- x : S
+       }
+  \and
+  \Infer{$->$Intro}
+       {
+         \Gamma, x : S
+         |-
+         e : T
+       }
+       {\Gamma |- \lamexp{x}{e} : (S -> T)}
+  \and
+  \Infer{$->$Elim}
+       {
+         \Gamma |- e_1 : (S -> T)
+         \\
+         \Gamma |- e_2 : S
+       }
+       {\Gamma |- \callexp{e_1}{e_2} : T}
+  \vspace{-1.5ex}
+  \\
+  \Infer{$\unitty$Intro}
+       {}
+       {\Gamma |- \unitexp : \unitty}
+  ~~~~~~~~~~~~~~
+  \Infer{type-true}
+       {}
+       {\Gamma |- \Btrue : \Bool}
+  \and
+  \Infer{type-false}
+       {}
+       {\Gamma |- \Bfalse : \Bool}
+  \\
+  \Infer{$\Int$Intro}
+       {
+       }
+       {\Gamma |- n : \Int}
+  \and
+  \Infer{type-add}
+       {
+         \Gamma |- e_1 : \Int
+         \\
+         \Gamma |- e_2 : \Int
+       }
+       {\Gamma |- \plusexp{e_1}{e_2} : \Int}
+  \and
+  \Infer{type-sub}
+       {
+         \Gamma |- e_1 : \Int
+         \\
+         \Gamma |- e_2 : \Int
+       }
+       {\Gamma |- \minusexp{e_1}{e_2} : \Int}
+  \\
+  \Infer{type-equals}
+       {
+         \Gamma |- e_1 : \Int
+         \\
+         \Gamma |- e_2 : \Int
+       }
+       {\Gamma |- \eqexp{e_1}{e_2} : \Bool}
+  \and
+  \Infer{type-lt}
+       {
+         \Gamma |- e_1 : \Int
+         \\
+         \Gamma |- e_2 : \Int
+       }
+       {\Gamma |- \ltexp{e_1}{e_2} : \Bool}
+  \\
+  \Infer{type-ite}
+       {
+         \Gamma |- e : \Bool
+         \\
+         \Gamma |- \eThen : T
+         \\
+         \Gamma |- \eElse : T
+       }
+       {\Gamma |- \iteexp{e}{\eThen}{\eElse} : T}
+  \\
+  \Infer{$+$Intro1}
+       {
+         \Gamma |- e_1 : S_1
+       }
+       {\Gamma |- \injexp{1}{e_1} : (S_1 + S_2)}
+  ~~~~~
+  \Infer{$+$Intro2}
+       {
+         \Gamma |- e_2 : S_2
+       }
+       {\Gamma |- \injexp{2}{e_2} : (S_1 + S_2)}
+  \and
+  \Infer{$+$Elim}
+       {
+         \Gamma |- e : (S_1 + S_2)
+         \\
+         \Gamma, x_1 : S_1
+         |-
+         e_1 : T
+         \\
+         \Gamma, x_2 : S_2
+         |-
+         e_2 : T
+       }
+       {
+         \Gamma |- \caseexp{e}{x_1}{e_1}{x_2}{e_2} : T
+       }
+   \\
+  \Infer{$**$Intro}
+       {
+         \Gamma |- e_1 : S_1
+         \\
+         \Gamma |- e_2 : S_2
+       }
+       {\Gamma |- \pairexp{e_1}{e_2} : (S_1 ** S_2)}
+  \and
+  \Infer{$**$Elim1}
+       {
+         \Gamma |- e : (S_1 ** S_2)
+       }
+       {\Gamma |- \projexp{1}{e} : S_1}
+  \and
+  \Infer{$**$Elim2}
+       {
+         \Gamma |- e : (S_1 ** S_2)
+       }
+       {\Gamma |- \projexp{2}{e} : S_2}
+\vspace*{-2.3ex}
+\end{mathpar}
+
+\caption{Typing with functions ($->$), integers, booleans, sums ($+$), and pairs ($\times$)}
+\label{fig:typing}
+\end{figure}
+
+\clearpage
+
+\textbf{Question 1(a).}
+Let $\Gamma = (x : \Bool)$.
+Complete the following typing derivation.
+%
+\vspace*{10ex}
+\[
+  \Infer{type-ite}
+        {
+          \hspace*{0.6\textwidth}
+        }
+        {\Gamma |- \iteexp{x}{2}{8} : \Int}
+\]
+
+\textbf{Question 1(b).}
+Let $\Gamma = (x : (\Int + \Bool))$.
+% \\
+Complete the following typing derivation.
+%
+\vspace*{14ex}
+\[
+\hspace*{-6ex}
+  \Infer{$+$Elim}
+        {
+          \Infer{\!type-assum}
+                 {(x : (\Int + \Bool)) \in \Gamma}
+                 {\Gamma |- x : (\Int + \Bool)}
+          ~~~~~
+          \Gamma, z : \Int |-   \hspace*{16ex}
+          ~~~~~
+          \Gamma, y : \Bool |-   \hspace*{13ex}
+        }
+        {\Gamma |- \caseexp{x}{z}{\Bfalse}{y}{y} : \Bool}
+\]
+
+\textbf{Question 1(c).} Booleans are not really necessary,
+because we can write $\injexp{1}{\unitexp}$ instead of $\Btrue$,
+$\injexp{2}{\unitexp}$ instead of $\Bfalse$, and \textvtt{Case}
+instead of \textvtt{Ite}.
+Translate the expression from 1(a), $\iteexp{x}{2}{8}$,
+into an expression that has type $\Int$ under the typing context
+\[
+      x : (\unitty + \unitty)
+\]
+and which would step to $2$ if $x$ were replaced with $\injexp{1}{\unitexp}$,
+and to $8$ if $x$ were replaced with $\injexp{2}{\unitexp}$.
+\textbf{Hint:} think about the derivation in 1(b).
+
+
+\clearpage
+\section{Mirror World}
+
+Consider the sequent calculus rules in \Figureref{fig:sc}.
+
+\begin{figure}[h]
+\judgbox{\Gamma |- A \True}{Under assumptions $\Gamma$, formula $A$ is true}
+  \vspace*{-1ex}
+\begin{mathpar}
+  \Infer{sc-assum}
+       { \xNDassume{x}{A \True} \in \Gamma
+       }
+       {
+         \Gamma |- A \True
+       }
+  \and
+  \Infer{sc-$\imp$Intro}
+       {
+         \Gamma, \xNDassume{x}{A \True}
+         |-
+         B \True
+       }
+       {\Gamma |- (A \imp B) \True}
+  \and
+  \Infer{sc-$\imp$Elim}
+       {
+         \Gamma |- A \imp B \True
+         \\
+         \Gamma |- A \True
+       }
+       {\Gamma |- B \True}
+  \vspace{-1.5ex}
+  \\
+  \Infer{sc-$\trueformula$Intro}
+       {}
+       {\Gamma |- \trueformula \True}
+  \\
+  \Infer{sc-$\OR$Intro1}
+       {
+         \Gamma |- A \True
+       }
+       {\Gamma |- A \OR B \True}
+  ~~
+  \and
+  \Infer{sc-$\OR$Intro2}
+       {
+         \Gamma |- B \True
+       }
+       {\Gamma |- A \OR B \True}  
+  ~~~
+  \and
+  \Infer{sc-$\OR$Elim}
+       {
+         \Gamma |- A \OR B \True
+         \\
+         \Gamma, \xNDassume{x}{A \True}
+         |-
+         C \True
+         \\
+         \Gamma, \xNDassume{y}{B \True}
+         |-
+         C \True
+       }
+       {
+         \Gamma |- C \True
+       }
+   \\
+  \Infer{sc-$\AND$Intro}
+       {
+         \Gamma |- A \True
+         \\
+         \Gamma |- B \True
+       }
+       {\Gamma |- A \AND B \True}
+  \and
+  \Infer{sc-$\AND$Elim1}
+       {
+         \Gamma |- A \AND B \True
+       }
+       {\Gamma |- A \True}  
+  \and
+  \Infer{sc-$\AND$Elim2}
+       {
+         \Gamma |- A \AND B \True
+       }
+       {\Gamma |- B \True}  
+\vspace*{-2.3ex}
+\end{mathpar}
+
+\caption{Sequent calculus, with $\imp$, $\trueformula$, $\OR$, and $\AND$}
+\label{fig:sc}
+\end{figure}
+
+Some of the typing rules from \Figureref{fig:typing}
+have a curious property:
+if we
+change some of the meta-variables,
+remove the expression and colon,
+translate the types,
+and add the word $\xTrue$, we get a rule in \Figureref{fig:sc}.
+
+For example, the rule $\times$Elim1
+becomes the rule sc-$\AND$Elim1:
+\[\runonfontsz{9.7pt}
+   \Infer{}%{$\times$Elim1}
+          {\Gamma |- e : S_1 ** S_2}
+          {\Gamma |- \Proj{1} e : S_1}
+   ~~\Longrightarrow~~
+   \Infer{}
+          {\Gamma |- e : A_1 ** A_2}
+          {\Gamma |- \Proj{1} e : A_1}
+   ~~\Longrightarrow~~
+   \Infer{}
+          {\Gamma |- A_1 ** A_2}
+          {\Gamma |- A_1}
+   ~~\Longrightarrow~~
+   \Infer{}
+          {\Gamma |- A_1 \AND A_2}
+          {\Gamma |- A_1}
+   ~~\Longrightarrow~~
+   \Infer{}
+          {\Gamma |- A_1 \AND A_2 \True}
+          {\Gamma |- A_1 \True}
+\]
+Here we translated the type $S_1 ** S_2$
+to $A_1 \AND A_2$ by replacing $**$ with $\AND$.
+The types can be translated as follows:
+\[
+\begin{tabular}[t]{rcll}
+  $\unitty$ & becomes & $\trueformula$
+\\
+  $**$ & becomes & $\AND$
+\\
+  $+$ & becomes & $\OR$
+\\
+  $->$ & becomes & $\imp$
+\end{tabular}
+\]
+Assumptions need some extra work;
+for example, in translating $->$Intro,
+$x : S$ becomes $\xNDassume{x}{S \True}$:
+\[\runonfontsz{9.7pt}
+   \Infer{}%{$\times$Elim1}
+          {\Gamma, x : S |- e : T}
+          {\Gamma |- \lamexp{x}{e} : S -> T}
+   ~~\Longrightarrow~~
+   \Infer{}
+          {\Gamma, x : A |- e : B}
+          {\Gamma |- \lamexp{x}{e} : A -> B}
+   ~~\Longrightarrow~~
+   \Infer{sc-$\imp$Intro}
+          {\Gamma, \xNDassume{x}{A \True} |- B \True}
+          {\Gamma |- (A \imp B) \True}
+\]
+Not all the typing rules in \Figureref{fig:typing} have meaningful translations.
+The rules involving arithmetic, among others, do not lead to anything interesting.
+\clearpage
+
+\textbf{Question 2(a).}
+Pick exactly three rules from \Figureref{fig:typing} such that
+each has a meaningful translation (following the procedure above)
+to exactly one corresponding rule in \Figureref{fig:sc}.
+Do \textbf{not} pick $\times$Elim1 or $->$Intro.
+In the table below, fill in rows (1), (2) and (3).
+In the first column of each row, write a rule you chose;
+and, in the second column, write its corresponding translation.
+
+\vspace*{2ex}
+
+\begin{tabular}{|l|l|}
+  \hline
+  \Figureref{fig:typing} rule\hspace{5em} & \Figureref{fig:sc} rule\hspace{5em} \\
+  \hline
+  ~~~~~~ $->$Intro & sc-$\imp$Intro \\[1ex]
+  ~~~~~~ $\times$Elim1 & sc-$\AND$Elim1 \\[1ex]
+  %%% Replace the tildes (~) below with your answers:
+  (1) ~ & ~
+  \\[1ex]
+  (2) ~ & ~
+  \\[1ex]
+   (3) ~  & ~ \\[1ex]
+  \hline
+\end{tabular}
+
+\vspace*{2ex}
+
+\textbf{Question 2(b)+ (up to 5\% bonus).}
+
+\textbf{A single $\AND$-elimination:}
+We have two elimination rules for $\AND$, which separately extract
+a subformula.  Design a \emph{single} sequent-calculus
+elimination rule for $\AND$.
+\textbf{Hint:} think about the structure of \text{sc-$\OR$Elim}.
+\textbf{Second hint:} think about the connection between
+$(P_1 \AND P_2) \imp Q$ and $P_1 \imp (P_2 \imp Q)$,
+and the shape of a derivation of $\emptyctx |- P_1 \imp (P_2 \imp Q) \True$:
+how many assumptions are needed within that derivation?
+\vspace*{16ex}
+
+\textbf{A single $\times$-elimination rule:}
+Translate your new $\AND$-elimination rule into
+a typing rule.  You will need to extend the grammar
+of expressions $e$.
+\vspace*{22ex}
+
+\textbf{Small-step semantics:}
+Extend the small-step semantics (see next page) with a reduction rule
+for your new expression form, and extend the grammar $\C$
+of contexts as appropriate.
+
+
+
+\clearpage
+\section{Progress}
+
+For this question, we consider the following small-step semantics.
+
+\begin{minipage}{0.4\linewidth}
+\begin{grammar}
+  Values & $v$
+  &\bnfas&
+  $
+  \unitexp
+  \bnfaltBRK
+  n
+  \bnfaltBRK
+  \trueexp \bnfalt \falseexp
+  \bnfaltBRK
+  x
+  \bnfalt
+  \lamexp{x}{e}
+  \bnfaltBRK
+  \pairexp{v}{v}
+  \bnfaltBRK
+  \injexp{1}{v} \bnfalt \injexp{2}{v}
+  $
+\end{grammar}
+\end{minipage}
+~
+\begin{minipage}{0.22\linewidth}
+\begin{grammar}
+  Evaluation contexts
+  & $\C$ &\bnfas&
+  $
+  \hole
+  \bnfaltBRK  \plusexp{\C}{e}  \bnfalt  \plusexp{v}{\C}
+  \bnfaltBRK  \minusexp{\C}{e}  \bnfalt  \minusexp{v}{\C}
+  \bnfaltBRK  \ite{\C}{e}{e}
+  \bnfaltBRK  \eqexp{\C}{e}  \bnfalt  \eqexp{v}{\C}
+  \bnfaltBRK  \ltexp{\C}{e}  \bnfalt  \ltexp{v}{\C}
+  \bnfaltBRK  \callexp{\C}{e}
+  \bnfaltBRK  \callexp{v}{\C}
+  \bnfaltBRK  \pairexp{\C}{e} \bnfalt \pairexp{v}{\C}
+  \bnfaltBRK  \projexp{1}{\C} \bnfalt \projexp{2}{\C}
+  \bnfaltBRK  \injexp{1}{\C} \bnfalt \injexp{2}{\C} \bnfaltBRK \caseexp{\C}{x}{e}{x}{e}
+  $
+\end{grammar}
+\end{minipage}
+
+\bigskip
+
+\judgbox{e \stepR e'}{Expression $e$ reduces to $e'$}
+\vspace*{-1.5ex}
+\begin{mathpar}
+  \Infer{red-add}
+     {
+     }
+     {\plusexp{n_1}{n_2} \stepR (n_1 + n_2)}
+  \and
+  \Infer{red-sub}
+     {
+     }
+     {\minusexp{n_1}{n_2} \stepR (n_1 - n_2)}
+  \vspace*{-1.5ex}
+  \\
+  \Infer{\!red-equals}
+     {
+     }
+     {\eqexp{n_1}{n_2} \stepR (n_1 = n_2)}
+  \and
+  \Infer{\!red-lessthan}
+     {}
+     {\ltexp{n_1}{n_2} \stepR (n_1 < n_2)}
+  \vspace*{-1.5ex}
+  \\
+  \Infer{\!red-ite-then}
+     {}
+     {\iteexp{\trueexp}{\eThen}{\eElse}  \stepR   \eThen}
+  \and
+  \Infer{\!red-ite-then}
+     {}
+     {\iteexp{\trueexp}{\eThen}{\eElse}  \stepR   \eThen}
+  \\
+  \Infer{\!red-beta}
+     {}
+     {\callexp{\lamexp{x}{e}}{v}  \stepR   [v/x]e}     
+  \vspace*{-1.0ex}
+  \\
+  \Infer{\!red-proj1}
+     {}
+     {\projexp{1}{\pairexp{v_1}{v_2}} \stepR v_1}
+  \and
+  \Infer{\!red-proj2}
+     {}
+     {\projexp{2}{\pairexp{v_1}{v_2}} \stepR v_2}
+  \vspace*{-1ex}
+  \\
+  \Infer{\!red-case1}
+     {}
+     {
+       \caseexp{\injexp{1}{v_1}}{x_1}{e_1}{x_2}{e_2}
+       \stepR
+       [v_1/x_1]e_1
+     }
+  \vspace*{-2ex}
+  \\
+  \Infer{\!red-case2}
+     {}
+     {
+       \caseexp{\injexp{2}{v_2}}{x_1}{e_1}{x_2}{e_2}
+       \stepR
+       [v_2/x_2]e_2
+     }
+  % \\
+  % \Infer{\!red-rec}
+  %     {}
+  %     {
+  %       \recExp{f}{S}{e}
+  %       ~\stepR~
+  %       \big[\recExp{f}{S}{e} \,\big/\, f\big]e
+  %     }
+\end{mathpar}
+
+\bigskip
+
+\judgbox{e \step e'}{Expression $e$ takes one step to $e'$}
+\begin{mathpar}
+     \Infer{step-context}
+         {e \stepR e'}
+         {\C[e] \step \C[e']}
+\end{mathpar}
+
+\clearpage
+
+\textbf{Question 3(a).}
+\emph{Progress} says that
+\[
+\text{
+  If $\emptyctx |- e : S$ then either (1) $e$ is a value, or (2) there exists
+  $e'$ such that $e \step e'$.
+}
+\]
+For most languages, including ours, it is impossible to prove progress
+without first proving a lemma known as \emph{canonical forms}
+or \emph{value inversion}.
+
+The first name, canonical forms, comes from the idea that the values of a given type---as opposed
+to expressions that are not values---are the original or canonical forms of that type.
+For example, while $\plusexp{1}{1}$ and $\minusexp{5}{3}$
+are both \emph{expressions} of type
+$\Int$---and, in a sense, represent the same integer $2$ since they all eventually step
+to $2$---we would not consider these expressions as defining the set of integers.
+But we can say that the \emph{values} of type $\Int$---which are the integer constants $n$---define the integers.
+
+The second name, value inversion, comes from the fact that the lemma
+uses inversion on a given derivation---but not the inversion we have often used,
+where we reason either from (a) knowing that we have an expression $e$
+of a particular form, say $\callexp{e_1}{e_2}$, or (b) knowing that the conclusion
+of a derivation is by some particular rule, say $->$Elim.
+Instead, the inversion is based on the combination of two facts:
+
+\begin{itemize}
+\item We know that the expression is a value.
+\item We know something about the expression's type.
+\end{itemize}
+
+Here is the complete value inversion, or canonical forms, lemma for our current language.
+There is one part for each production in the grammar of types.
+
+\begin{lemma}[Value Inversion] \label{lem:value-inversion}
+    ~
+  \begin{enumerate}
+  \item If $\emptyctx |- v : \unitty$
+    then $v = \unitexp$.
+
+  \item If $\emptyctx |- v : \Bool$
+    then either $v = \Btrue$ or $v = \Bfalse$.
+
+  \item If $\emptyctx |- v : \Int$
+    then there exists $n$ such that $v = n$.
+    
+  \item If $\emptyctx |- v : (S_1 ** S_2)$
+    \\
+    then there exist $v_1$ and $v_2$ such that
+    $v = \pairexp{v_1}{v_2}$
+    and $\emptyctx |- v_1 : S_1$
+    and $\emptyctx |- v_2 : S_2$.
+
+  \item If $\emptyctx |- v : (S_1 -> S_2)$
+    then there exist $x$ and $e$ such that
+    $v = \lamexp{x}{e}$
+    and $x : S_1 |- e : S_2$.
+
+  \item If $\emptyctx |- v : (S_1 + S_2)$
+    then either (1) there exists $v_1$ such that $v = \injexp{1}{v_1}$
+    and $\emptyctx |- v_1 : S_1$
+    or (2) there exists $v_2$ such that $v = \injexp{2}{v_2}$
+    and $\emptyctx |- v_2 : S_2$.
+  \end{enumerate}
+\end{lemma}
+
+
+\begin{proof}{}
+  [Unusually, this proof does not need induction.]
+
+  Part 1: The only rule whose conclusion can be $\emptyctx |- \unitexp : \unitty$
+  is $\unitty$Intro.  By inversion on $\unitty$Intro, we have $v = \unitexp$.
+  [In full detail for the impossible cases:
+  
+  \begin{itemize}
+  \item In type-assum, we have $x$ (which is a value)
+    but the context is $\emptyctx$, so the premise is $(x : \unitty) \in \emptyctx$
+    which is impossible.
+
+  \item In $->$Intro, the expression being typed is a value,
+    but the type is a $->$ which does not match the given $\unitty$,
+    so this case is impossible.
+
+  \item In $->$Elim, the expression being typed has the form $\callexp{e_1}{e_2}$,
+    which is not a value.
+
+  \item In type-true, type-false and $\Int$Intro, the expression being typed
+    is a value but the type does not match.
+
+  \item In type-add, type-sub, type-abs, type-equals, type-lt, type-ite, $**$Elim1 and
+    $**$Elim2, % and type-rec,
+    the expression being typed is not a value.
+
+  \item In $**$Intro, the expression being typed could be a value (if the
+    two subexpressions $e_1$ and $e_2$ are values, then $\pairexp{e_1}{e_2}$
+    is a value), but the type does not match.
+  \end{itemize}
+  End of the detail for the impossible cases.]
+
+  \medskip
+
+  Parts 2, 3, 4, 5: [proof omitted]
+
+  \medskip
+
+  Part 6: \textbf{Question 3(a).} Fill in the four listed cases.
+
+  Consider cases of the rule concluding $\emptyctx |- v : (S_1 + S_2)$.
+  [Either explain why the case is impossible, \emph{even if you are only
+    repeating what I gave for Part 1}, or prove the goal for Part 6:\\
+``either (1) there exists $v_1$ such that $v = \injexp{1}{v_1}$
+    and $\emptyctx |- v_1 : S_1$
+    or (2) there exists $v_2$ such that $v = \injexp{2}{v_2}$
+    and $\emptyctx |- v_2 : S_2$.''
+
+  \begin{itemize}
+  \item type-assum:
+    
+    \vspace*{4ex}
+
+  \item $->$Intro:
+
+    \vspace*{4ex}
+
+  \item $+$Elim:
+
+    \vspace*{4ex}
+
+  \item $+$Intro1:
+
+    \vspace*{20ex}
+
+  \item $+$Intro2: Similar to the $+$Intro1 case.
+
+  \item{} The remaining cases are impossible for reasons similar to those
+    given in Part 1.
+  \qedhere
+  \end{itemize}
+
+
+\end{proof}
+
+
+\end{document}
+
+% Local Variables:
+% TeX-master: "a3"
+% End:

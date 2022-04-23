@@ -1,0 +1,137 @@
+465/865 Friday 2022-04-01
+Jana Dunfield
+This lecture is (hopefully) recorded until about the 50-minute mark
+
+https://stream.queensu.ca/hapi/v1/contents/permalinks/MacCorryD216/view
+
+If you are watching the stream above, please connect to Zoom, the audio is more likely to work there
+
+lec14.pdf: Polymorphism
+
+    Γ, x : T1 ⊢ e : T2
+    –––––––––––––––––––––––– →Intro
+    Γ ⊢ (Lam x e) : T1 -> T2
+ 
+     x : int ∈ Ø, x : int
+     –––––––––––––––––––– type-assum
+     Ø, x : int ⊢ x : int
+     –––––––––––––––––––––––––– →Intro
+[X]  Ø ⊢ (Lam x x) : int -> int
+
+
+
+[X]  Ø ⊢ (Lam x x) : bool -> bool
+  
+[X]  Ø ⊢ (Lam x x) : (int + bool) -> (int + bool)
+
+[X]  Ø ⊢ (Lam x x) : (int -> bool) -> (int -> bool)
+
+[ ]  Ø ⊢ (Lam x x) : bool -> int
+                     ^^^^    ^^^ input and output types aren't the same
+
+     not the same derivation shape, need to use type-subsume
+[X]  Ø ⊢ (Lam x x) : nat -> int
+                   : int -> string
+etc.
+
+     (Call f [1, 2, 3, 4])   |-> ... |->  [4, 3, 2, 1]
+
+     (Call f [True, True, False])   |-> ... |->  [False, True, True]
+
+      Ø ⊢ (Lam x x) : ∀α. α -> α
+                      For any type α,  α -> α
+                      For any type, given something of that type, returns something of the same type
+                   [  ∀α. a -> a   ]
+Types
+  S, T ::= unit
+         | int
+         | bool
+         | S -> T
+         | S * T
+         | S + T
+         | ∀α. T              -- new
+         | α
+
+     Γ ::= Ø
+         | Γ, x : S
+         | Γ, α type          -- new
+
+
+ Γ, x[a : nat] ⊢ B true
+ –––––––––––––––––––––– ∀Intro
+ Γ ⊢ (∀a : nat. B) true
+
+ Γ ⊢ (∀a : nat. B) true    Γ ⊢ n : nat
+ ––––––––––––––––––––––––––––––––––––– ∀Elim
+            Γ ⊢ [n/a]B true
+
+ Example:
+  Ø ⊢ (∀a : nat. even(a) ⊃ odd(a + 1)) true    Ø ⊢ 8 : nat
+  –––––––––––––––––––––––––––––––––––––––––––––––––––––––– ∀Elim
+            Ø ⊢ (even(8) ⊃ odd(8 + 1)) true
+              = [8/a]( even(a) ⊃ odd(a + 1) )
+
+ Γ ⊢ e : S
+
+ Γ, α type ⊢ e : T                   Γ ⊢ e1 : S1 -> S2     Γ ⊢ e2 : S1
+ –––––––––––––––––––––– ∀Intro       ––––––––––––––––––––––––––––––––– ->Elim
+   Γ ⊢ e : (∀α. T)                       Γ ⊢ (Call e1 e2) : S2
+       for all types α, e has type T
+
+ Γ ⊢ e : (∀α. T)      Γ ⊢ S type
+ ––––––––––––––––––––––––––––––– ∀Elim
+          Γ ⊢ e : [S/α]T
+      ∀α. α -> α           a -> a
+          
+                   x : α ∈ Γ, α type, x : α
+                   –––––––––––––––––––––––––– type-assum
+                   Γ, α type, x : α ⊢ x : α
+                   –––––––––––––––––––––––––––––––––– ->Intro
+                     Γ, α type ⊢ (Lam x x) : α -> α
+                     –––––––––––––––––––––––––––––––– ∀Intro
+                        Γ ⊢ (Lam x x) : ∀α. (α -> α)
+
+Γf = f : ∀α. (α -> α)
+         ∀             ->
+        / \           /  \
+       α  ->         S1  S2
+         /  \
+        α    α
+               f : ∀α. (α -> α) ∈ Γf
+               ––––––––––––––––––––– t-assum
+                Γf ⊢ f : ∀α. (α -> α)          Γf ⊢ int*bool type
+                ––––––––––––––––––––––––––––––––––––––––––––––––– ∀Elim
+                       Γf ⊢ f : [int*bool / α](α -> α)
+                              = int*bool -> int*bool
+                       Γf ⊢ f : int*bool -> int*bool    Γf ⊢ (Pair 1 True) : int * bool
+                       –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––– ->Elim
+                        Γf ⊢ (Call f (Pair 1 True)) : int * bool
+
++––––––––––––+
+| Γ ⊢ S type |
++------------+
+
+   –––––––––––––
+   Γ ⊢ unit type
+
+   –––––––––––––
+   Γ ⊢ int type
+
+   –––––––––––––
+   Γ ⊢ bool type
+
+   Γ ⊢ S type  Γ ⊢ T type     Γ ⊢ S type    Γ ⊢ T type
+   ––––––––––––––––––––––     ––––––––––––––––––––––––    ...
+   Γ ⊢ S -> T type            Γ ⊢ S + T type
+
+   α type ∈ Γ
+   –––––––––––––––
+   Γ ⊢ α type
+
+       Ø ⊢ (Lam x x) : ∀α. α->α      Ø ⊢ (∀α. S) type    
+       –––––––––––––––––––––––––––––––––––––––––––––– ∀Elim
+       Ø ⊢ (Lam x x) : (α1+α2) -> (α1+α2)
+
+               (Pair 1 True)
+
+       

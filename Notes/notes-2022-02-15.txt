@@ -1,0 +1,160 @@
+465/865 Tuesday 2022-02-15
+Jana Dunfield
+Please mute your microphone when not speaking
+This lecture is recorded until about the 50-minute mark
+
+lec9.pdf: Sequent calculus
+
+atomic formulas   P, Q
+                  (we also use   "a > 0", etc.
+variables         a, b
+                  )
+formulas          A, B, C ::= P           atomic formula
+                            | A ⊃ B       implication  (A → B)
+			    | A ∧ B       conjunction (and)
+			    | A ∨ B       disjunction (or)
+			    | ∀a:nat. A   (for all a)
+                            | ∃a:nat. A   (there exists a)
+                            | True        truth (always true)
+                            | False       falsehood
+			    | ¬A          negation
+
+Why is natural deduction annoying?
+
+Assume X.  Assume Y. ...
+Suppose, for a contradiction, that Z. ... Suppose, for a contradiction, that Z2.  ... Contradiction.  Therefore (not Z).
+
+
+  Ø   for "no assumptions"
+  ⊢   "turnstile"
+
+
+
+
+
+
+(sets of assumptions)
+contexts         Γ ::= Ø                  empty context (no assumptions)      (often written · )
+                     | Γ, x[A true]       assumption that  A  is true
+		     | Γ, y[a : nat]      assumption that  a  is a natural number
+
+The following questions assume contexts are exactly as specified by the grammar:
+
+1. Is   Ø, x[False true]  a context?   Yes
+
+2. Is   Ø, Ø              a context?   No
+
+3. Is   x[¬Q true]        a context?   No
+
+4. Is   Ø, x[¬P true], y[P true]  a context?  Yes (and I think this is fine, even though we have contradictory assumptions)
+
+5. Is   Ø, x[P true], x[¬P true]  a context?  Yes (and this is not good)
+
+6. Is   Ø, x[P true], x[P true]   a context?  Yes (and this is not good)
+
+Eventually, will introduce a judgment  "Γ wf" for "Γ well-formed", which would exclude contexts like 5 and 6.
+
+
++------------+
+| Γ ⊢ A true | Under assumptions Γ, formula A is true
++------------+
+
+  Natural deduction                              Sequent calculus
+ 
+  A true     B true                              Γ ⊢ A true     Γ ⊢ B true   
+  ––––––––––––––––– ∧Intro    ------------->     ––––––––––––––––––––––––– ∧Intro
+     (A ∧ B) true	                             Γ ⊢ (A ∧ B) true
+
+  –––––––––––––           A ∧ B true
+  Ø ⊢ True true           –––––––––– 
+                            B true
+
+  A ∧ B true  	       A ∧ B true  	         Γ ⊢ A ∧ B true              Γ ⊢ A ∧ B true  
+  –––––––––– ∧Elim1    –––––––––– ∧Elim2   --->  ––––––––––––––––– ∧Elim1    ––––––––––––––– ∧Elim2
+    A true               B true                     Γ ⊢ A true                  Γ ⊢ B true
+                                                                 Ø, x[P ∧ Q true] ⊢ Q true    
+
+
+                                                  x[A true] ∈ Γ          (the use of ∈ )
+  ––––––––––– x   "use of an assumption"   ---->  ––––––––––––– assum
+    A true                                          Γ ⊢ A true
+
+     x[A true] 
+        .
+        .
+        .                  
+       B true             x           Γ, x[A true] ⊢ B true  
+  ––––––––––––––––– ⊃Intro   ----->  ––––––––––––––––––––––– ⊃Intro
+    (A ⊃ B) true                      Γ ⊢ (A      ⊃ B) true
+                                      Ø ⊢ (P ∧ Q) ⊃ Q true
+
+     x[P ∧ Q true] ∈ Ø, x[P ∧ Q true]
+   –––––––––––––––––––––––––––––––––– assum
+     Ø, x[P ∧ Q true] ⊢ P ∧ Q true  
+   ––––––––––––––––––––––––––––––––––– ∧Elim2
+     Ø, x[P ∧ Q true] ⊢ Q true  
+   ––––––––––––––––––––––––––– ⊃Intro
+     Ø ⊢ (P ∧ Q) ⊃ Q true
+     Γ is Ø,  A is P ∧ Q, B is Q
+
+
+First variation:              
+                                               Not correct,
+     x[P ∧ Q true] ∈ Γ                         <--- Γ is unknown
+   –––––––––––––––––––––––––––––––––– assum
+     Ø, x[P ∧ Q true] ⊢ P ∧ Q true  
+   ––––––––––––––––––––––––––––––––––– ∧Elim2
+     Ø, x[P ∧ Q true] ⊢ Q true  
+   ––––––––––––––––––––––––––– ⊃Intro
+     Ø ⊢ (P ∧ Q) ⊃ Q true
+
+
+Second variation:                                Correct? 
+     x[P ∧ Q true] ∈ Γ                              No,   Γ is unknown
+   –––––––––––––––––––––––––––––––––– assum               whatever Γ is, I hope x is not in it
+     Γ, x[P ∧ Q true] ⊢ P ∧ Q true                        missing x[P ∧ Q] true at the top 
+   ––––––––––––––––––––––––––––––––––– ∧Elim2
+     Γ, x[P ∧ Q true] ⊢ Q true  
+   ––––––––––––––––––––––––––– ⊃Intro
+     Γ ⊢ (P ∧ Q) ⊃ Q true
+
+Third variation:
+                                                 Correct?
+     x[P ∧ Q true] ∈ Γ                              No,  Γ is unknown
+   –––––––––––––––––––––––––––––––––– assum
+     Γ ⊢ P ∧ Q true  
+   ––––––––––––––––––––––––––––––––––– ∧Elim2
+     Γ ⊢ Q true  
+   ––––––––––––––––––––––––––– ⊃Intro
+     Ø ⊢ (P ∧ Q) ⊃ Q true
+
+Fourth variation
+
+Γ = Ø, x[P ∧ Q true]
+                                                 Correct?
+     x[P ∧ Q true] ∈ Γ                             Yes                         
+   –––––––––––––––––––––––––––––––––– assum
+     Γ ⊢ P ∧ Q true  
+   ––––––––––––––––––––––––––––––––––– ∧Elim2
+     Γ ⊢ Q true  
+   ––––––––––––––––––––––––––– ⊃Intro
+     Ø ⊢ (P ∧ Q) ⊃ Q true
+
+
+Γx = Ø, x[P ∧ Q true]
+                                                 Correct?
+     x[P ∧ Q true] ∈ Γx                            Yes     
+   –––––––––––––––––––––––––––––––––– assum
+     Γx ⊢ P ∧ Q true  
+   ––––––––––––––––––––––––––––––––––– ∧Elim2
+     Γx ⊢ Q true  
+   ––––––––––––––––––––––––––– ⊃Intro
+     Ø ⊢ (P ∧ Q) ⊃ Q true
+
+
+
+  Γ ⊢ A true      Γ ⊢  A ⊃ B true
+  ––––––––––––––––––––––––––––––– ⊃Elim	 
+         Γ ⊢ B true        
+
+For the rest of the sequent calculus rules, see lec9.pdf.

@@ -1,0 +1,271 @@
+465/865 Tuesday 2022-04-05
+Jana Dunfield
+This lecture is (hopefully) recorded until about the 50-minute mark
+
+https://stream.queensu.ca/hapi/v1/contents/permalinks/MacCorryD216/view
+
+If you are watching the stream above, please connect to Zoom, the audio is more likely to work there
+
+
+
+no    Ø ⊢ (Lam x (+ x 1)) : ∀α. α -> α
+
+   x:α ⊢ (Ite x x x) : α
+no    Ø ⊢ (Lam x (Ite x x x)) : ∀α. α -> α
+
+
+yes   Ø ⊢ (Lam x (Rec x x)) : ∀α. α -> α
+
+yes   Ø ⊢ (Lam x x) : ∀α. α -> α
+yes   Ø ⊢ (Lam x (Call (Lam y y) x)) : ∀α. α -> α
+
+(Call (Lam x (Call (Lam y y) x)) 5)
+
+      Ø ⊢ (Lam x (Lam y x)) : ∀α1. ∀α2. α1 -> (α2 -> α1)
+          \x -> \y -> x
+      Ø ⊢ (Lam x (Lam y (Ite True x x))) : ∀α1. ∀α2. α1 -> (α2 -> α1)
+
+Parametricity
+      
+
+== Mutable State ==
+
+(Call (Lam x verylongexpression) 5)
+
+Locations in a store that can be updated
+
+"Functional by default, imperative by request"
+(Standard ML)
+
+Locations   Loc ::= L1 | L2 | L3 ...
+
+Expressions   e ::= ...
+                  | (Alloc e)      allocate a location initialized to e
+                  | (Get e)        read the contents of a location
+                  | (Set e1 e2)    update the contents of e1 to e2
+                  | Loc            location (pointer)
+
+Values        v ::= ...
+                  | Loc
+
+              Γ ::= Ø | Γ, x : S
+Stores        Σ ::= emp            empty store
+                  | Σ, Loc ► v     store Σ, plus Loc pointing to v
+
+S
+
+ (Alloc (+ 2 2))                 a new location containing 4
+
+(Set (Alloc (+ 2 2)) 5)
+
+
+     e |-> e'
+
+     (Get L1) |->
+
+   Σ; e |-> e'
+
+   emp, L1 ► 5; (Get L1) |-> 5
+
+   Σ  ; e         |-> Σ'         ; e'
+   emp; (Alloc 5) |-> emp, L2 ► 5; L2
+
+    (Alloc 5) |->R L2
+   Σ; e    |->R  Σ'; e'
+   ––––––––––––––––––––––––– Step-context
+   Σ; C[e] |->   Σ'; C[e']
+
+   ––––––––––––––––––––––––––– Red-add
+   Σ; (+ n1 n2) |->R Σ; n1+n2
+
+   dom(emp) = {}
+   dom(Σ, L►v) = dom(Σ) ∪ {L}
+
+   L1►0; (Alloc 5) |->R L1►0, L1►5; L1   don't want
+
+   (Call (Lam x (+ x 1)) 5)
+
+
+             L ∉ dom(Σ)
+   –––––––––––––––––––––––––––––– Red-alloc
+   Σ; (Alloc v) |->R Σ, L►v; L
+   
+           L►v ∈ Σ
+   –––––––––––––––––––––––––––––– Red-get
+   Σ; (Get L) |->R Σ; v
+
+   ––––––––––––––––––––––––––––––––––––––––––––––––––– Red-set
+   Σ1, L►v, Σ2; (Set L v2)  |->R  Σ1, L►v2, Σ2; L
+   
+
+(Set 1 5) |/>
+
+
+(Set (Alloc (+ 2 2)) True)
+
+Assume garbage collection
+
+
+(Let x (Alloc (Lam x x))   let x = (Alloc (Lam x x)) in
+   (Let y (Set x 0)          let y = (Set x 0) in
+      (Call (Get x) 1)))        (Call (Get x) 1)
+            NULL
+            null
+            nil
+            Segmentation fault  Bus error
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+lec15.pdf: Polymorphism
+
+    Γ, x : T1 ⊢ e : T2
+    –––––––––––––––––––––––– →Intro
+    Γ ⊢ (Lam x e) : T1 -> T2
+ 
+     x : int ∈ Ø, x : int
+     –––––––––––––––––––– type-assum
+     Ø, x : int ⊢ x : int
+     –––––––––––––––––––––––––– →Intro
+[X]  Ø ⊢ (Lam x x) : int -> int
+
+
+
+[X]  Ø ⊢ (Lam x x) : bool -> bool
+  
+[X]  Ø ⊢ (Lam x x) : (int + bool) -> (int + bool)
+
+[X]  Ø ⊢ (Lam x x) : (int -> bool) -> (int -> bool)
+
+[ ]  Ø ⊢ (Lam x x) : bool -> int
+                     ^^^^    ^^^ input and output types aren't the same
+
+     not the same derivation shape, need to use type-subsume
+[X]  Ø ⊢ (Lam x x) : nat -> int
+                   : int -> string
+etc.
+
+     (Call f [1, 2, 3, 4])   |-> ... |->  [4, 3, 2, 1]
+
+     (Call f [True, True, False])   |-> ... |->  [False, True, True]
+
+      Ø ⊢ (Lam x x) : ∀α. α -> α
+                      For any type α,  α -> α
+                      For any type, given something of that type, returns something of the same type
+                   [  ∀α. a -> a   ]
+Types
+  S, T ::= unit
+         | int
+         | bool
+         | S -> T
+         | S * T
+         | S + T
+         | ∀α. T              -- new
+         | α
+
+     Γ ::= Ø
+         | Γ, x : S
+         | Γ, α type          -- new
+
+
+ Γ, x[a : nat] ⊢ B true
+ –––––––––––––––––––––– ∀Intro
+ Γ ⊢ (∀a : nat. B) true
+
+ Γ ⊢ (∀a : nat. B) true    Γ ⊢ n : nat
+ ––––––––––––––––––––––––––––––––––––– ∀Elim
+            Γ ⊢ [n/a]B true
+
+ Example:
+  Ø ⊢ (∀a : nat. even(a) ⊃ odd(a + 1)) true    Ø ⊢ 8 : nat
+  –––––––––––––––––––––––––––––––––––––––––––––––––––––––– ∀Elim
+            Ø ⊢ (even(8) ⊃ odd(8 + 1)) true
+              = [8/a]( even(a) ⊃ odd(a + 1) )
+
+ Γ ⊢ e : S
+
+ Γ, α type ⊢ e : T                   Γ ⊢ e1 : S1 -> S2     Γ ⊢ e2 : S1
+ –––––––––––––––––––––– ∀Intro       ––––––––––––––––––––––––––––––––– ->Elim
+   Γ ⊢ e : (∀α. T)                       Γ ⊢ (Call e1 e2) : S2
+       for all types α, e has type T
+
+ Γ ⊢ e : (∀α. T)      Γ ⊢ S type
+ ––––––––––––––––––––––––––––––– ∀Elim
+          Γ ⊢ e : [S/α]T
+      ∀α. α -> α           a -> a
+          
+                   x : α ∈ Γ, α type, x : α
+                   –––––––––––––––––––––––––– type-assum
+                   Γ, α type, x : α ⊢ x : α
+                   –––––––––––––––––––––––––––––––––– ->Intro
+                     Γ, α type ⊢ (Lam x x) : α -> α
+                     –––––––––––––––––––––––––––––––– ∀Intro
+                        Γ ⊢ (Lam x x) : ∀α. (α -> α)
+
+Γf = f : ∀α. (α -> α)
+         ∀             ->
+        / \           /  \
+       α  ->         S1  S2
+         /  \
+        α    α
+               f : ∀α. (α -> α) ∈ Γf
+               ––––––––––––––––––––– t-assum
+                Γf ⊢ f : ∀α. (α -> α)          Γf ⊢ int*bool type
+                ––––––––––––––––––––––––––––––––––––––––––––––––– ∀Elim
+                       Γf ⊢ f : [int*bool / α](α -> α)
+                              = int*bool -> int*bool
+                       Γf ⊢ f : int*bool -> int*bool    Γf ⊢ (Pair 1 True) : int * bool
+                       –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––– ->Elim
+                        Γf ⊢ (Call f (Pair 1 True)) : int * bool
+
++––––––––––––+
+| Γ ⊢ S type |
++------------+
+
+   –––––––––––––
+   Γ ⊢ unit type
+
+   –––––––––––––
+   Γ ⊢ int type
+
+   –––––––––––––
+   Γ ⊢ bool type
+
+   Γ ⊢ S type  Γ ⊢ T type     Γ ⊢ S type    Γ ⊢ T type
+   ––––––––––––––––––––––     ––––––––––––––––––––––––    ...
+   Γ ⊢ S -> T type            Γ ⊢ S + T type
+
+   α type ∈ Γ
+   –––––––––––––––
+   Γ ⊢ α type
+
+       Ø ⊢ (Lam x x) : ∀α. α->α      Ø ⊢ (∀α. S) type    
+       –––––––––––––––––––––––––––––––––––––––––––––– ∀Elim
+       Ø ⊢ (Lam x x) : (α1+α2) -> (α1+α2)
+
+               (Pair 1 True)
+
+       

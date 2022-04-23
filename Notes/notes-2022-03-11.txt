@@ -1,0 +1,316 @@
+465/865 Friday 2022-03-11
+Jana Dunfield
+This lecture is (hopefully) recorded until about the 50-minute mark
+
+https://stream.queensu.ca/hapi/v1/contents/permalinks/MacCorryD216/view
+If you are watching the stream above, please connect to Zoom, the audio is more likely to work there
+or maybe over Zoom?
+
+Today: lec12.pdf.
+
+
+program
+variables    x, y, z
+
+integers     n
+
+values       v ::= n
+                 | True
+		 | False
+		 | (Lam x e)
+		 | x                   -- maybe?
+
+expressions  e ::= ()
+                 | n
+                 | (+ e e)
+                 | (- e e)
+		 | (= e e)
+		 | (< e e)
+		 | True
+		 | False
+		 | (Ite e e e)         -- if-then-else (Ite e1 e2 e3)  if e1 then e2 else e3
+		 | (Lam x e)           -- Lambda, anonymous function that takes an argument x and evaluates the body e
+		 | (Call e e)          -- (Call e1 e2)  call the function e1 with argument e2
+		 | x                   -- program variable
+
++–––––––––––+
+| e |->R e' | expression e reduces to e'
++–––––––––––+
+
+    –––––––––––––––––––––– red-add
+    (+ n1 n2) |->R n1 + n2
+
+    –––––––––––––––––––––– red-subtract
+    (- n1 n2) |->R n1 - n2
+
+    –––––––––––––––––––––– red-equals     where n1 = n2
+    (= n1 n2) |->R n1 = n2                 is True if n1 equals n2, and is False if n1 ≠ n2
+
+    –––––––––––––––––––––– red-lessthan   where n1 < n2
+    (< n1 n2) |->R n1 < n2                  is True if n1 less than n2, and is False if n1 ≥ n2
+   
+    ––––––––––––––––––––––––––––––––– red-ite-then
+    (Ite True eThen eElse) |->R eThen
+
+    –––––––––––––––––––––––––––––––––– red-ite-else
+    (Ite False eThen eElse) |->R eElse
+ 
+    –––––––––––––––––––––––––––––––––––– red-by-value ("red-beta" in lec12.pdf)
+    (Call (Lam x e) vArg) |->R [vArg/x]e
+
++–––––––––––+
+| e |->  e' | expression e steps to e'
++–––––––––––+
+
+   C ::= []
+       | (+ C e) | (+ e C)
+       | (- C e) | (- e C)
+       | (= C e) | (= e C)
+       | (< C e) | (< e C)
+       | (Ite C e e)
+       | (Call C e) | (Call e C)
+
+      e |->R e'
+    –––––––––––––– step-context
+    C[e] |-> C[e']
+
+One derivation of:   (= (+ 1 2) (- 7 4)) |-> (= 3 (- 7 4))   using C1
+Another derivation:  (= (+ 1 2) (- 7 4)) |-> (= (+ 1 2) 3)   using C2
+                     (= 3 (- 7 4)) |-> (= 3 3)               using ?
+                     (= (+ 1 2) 3) |-> (= 3 3)               using ??
+                     (= 3 3) |-> True                        using C3
+        e1 |->R e1'
+    –––––––––––––––––– step-context
+    C1[e1] |-> C1[e1']
+
+        –––––––––––––– red-add
+        (+ 1 2) |->R 3
+    –––––––––––––––––––––––––––––––––––––– step-context
+    (= (+ 1 2) (- 7 4)) |-> (= 3 (- 7 4))
+                            
+                               what is 3? a value
+        C1 = (= [] (- 7 4))
+        e1 = (+ 1 2)
+    C1[e1] = (= (+ 1 2) (- 7 4))
+       e1' = 3
+
+                –––––––––––––– red-subtract
+                (- 7 4) |->R 3
+    ––––––––––––––––––––––––––––––––––––––––––– step-context
+    (= (+ 1 2) (- 7 4)) |-> (= (+ 1 2) 3)
+                            (= (+ 1 2) [])[e2']
+        C2 = (= (+ 1 2) [])
+    C2[e2] = (= (+ 1 2) (- 7 4))  = (= (+ 1 2) (- 7 4))
+        e2 = (- 7 4)
+       e2' = 3
+
+     (= (+ 1 2) (- 7 4)) |-> (= 3 (- 7 4))    using C1
+
+     (= (+ 1 2) (- 7 4)) |-> (= (+ 1 2) 3)   using C2
+
+     (= 3 (- 7 4)) |-> (= 3 3)
+     (= (+ 1 2) 3) |-> (= 3 3)
+          3 |->R
+    –––––––––––––––––– step-context
+     (= 3 3) |-> True
+
+    C3 = (= [] 3)        3 doesn't reduce
+    C3[e3] = (= 3 3)
+    e3 = 3
+
+    C3 = (= 3 [])        3 doesn't reduce
+    C3[e3] = (= 3 3)
+    e3 = 3
+
+     ––––––––––––––––– red-equals
+     (= 3 3) |->R True
+    ––––––––––––––––––– step-context
+     (= 3 3) |-> True
+
+    (= 3 3) |->R True   By red-equals
+    (= 3 3) |-> True    By step-context [with C = [] ]
+
+    C3 = []                                     []              =
+                                                               / \
+                                                              3   3
+    C3[e3] |-> C3[e3']
+    C3[e3] = [][e3] = (= 3 3) = e3
+    e3' = True
+    C3[e3'] = [][e3'] = e3' = True
+
+* [Confluence: always get to the same expression in the end, here: True]
+
+* Determinacy:
+
+    If e |-> e1 and e |-> e2 then e1 = e2
+
+    Counterexample: e = (= (+ 1 2) (- 7 4))
+                   e1 = (= 3 (- 7 4))
+                   e2 = (= (+ 1 2) 3)
+
+    Not true for step-context with the above grammar for C.
+
+Change the grammar to this:
+   C ::= []
+       | (+ C e) | (+ v C) | v
+       | (- C e) | (- v C)
+       | (= C e) | (= v C)
+       | (< C e) | (< v C)
+       | (Ite C e e)
+       | (Call C e) | (Call v C)
+
+   
+
+   (- (+ 1 2) 5) |-> (- 3 5)
+
+* OCaml
+
+
+
+
+* lec12.pdf: Intro to typing
+
+  Γ ::= Ø
+      | Γ, x : S
+
+  Ø, x : int ⊢ (+ x x) : int
+
+  Ø, x : int, y : int ⊢ (= x y) : bool
+                                  True or False
+                                  
+
+
+
+
+
+
+
+
+
+
+
+
+
+               =
+              / \
+             /   \
+            +     -
+           / \   / \
+          1   2  7  4
+
+==========================================================================
+lec12.pdf       "Y combinator"
+
+Typing context
+Context
+Variables x, y, z
+   Γ ::= Ø                   
+       | Γ, x : S               assume x has type S
+S, T ::= unit                   type of unit
+       | int                    type of integers
+       | bool                   type of booleans
+       | S -> S                 type of functions that take S and return T
+
+  Ø, x : bool                   Is this a Γ? Yes
+  Ø, z : int -> int, y : nat    Is this a Γ? No, nat is not in the grammar of types
+  Ø, z : int -> int, y : bool   Is this a Γ? Yes
+  Ø, z : int -> bool, y : bool  Is this a Γ? Yes
+  x : bool, Ø                   Is this a Γ? Yes? No? No...
+
+  x : bool, y : bool            Is this a Γ? No...
+  Ø, Ø                          Is this a Γ? No...
+  x : bool                      Is this a Γ? No...
+Interpret x : bool as Ø, x : bool
+  Γ1, Γ2
+
+
+  Γ1 = (Ø, x : bool)
+  Γ2 = (Ø, y : int)
+  Γ1, Γ2  =  Ø, x : bool, Ø, y : int
+          =  Ø, x : bool, y : int
+
+   Γ ::= Ø                   
+       | Γ, Γ
+       | x : S
+
+   x : bool
+   Ø, x : bool         
+       
+   (x : int, y : bool), z : unit
+   x : int, (y : bool, z : unit)
+   x : int, Ø                    ≡        Ø, x : int         ≡  x : int
+
+  A true   B true
+  ––––––––––––––– ∧Intro
+   A ∧ B true
+   
++–––––––––––––+
+| Γ ⊢ e : S   |  Under typing assumptions Γ, expression e has type S
++–––––––––––––+
+   entails
+
+   ––––––––––– intIntro
+   Γ ⊢ n : int
+
+   ––––––––––––– unitIntro
+   Γ ⊢ () : unit
+
+   (x : S) ∈ Γ
+   ––––––––––––––––– type-assum
+       Γ ⊢ x  : S
+
+    Γ, x : S ⊢ e : T                    Γ ⊢ e1 : S -> T   Γ ⊢ e2 : S
+––––––––––––––––––––––––– ->Intro       –––––––––––––––––––––––––––– ->Elim
+   Γ ⊢ (Lam x e)  : S -> T              Γ ⊢ (Call e1 e2) : T
+   Ø ⊢ (Lam y ()) : 
+
+Ø, x : bool ⊢ x  : bool
+
+Γ  =  Ø, x : bool
+x  =  x
+S  =  bool
+                                                  (x : bool) ∈ (Ø, x : bool)
+                                               ––––––––––––––––––––––––––––– type-assum
+   Γ, x : S ⊢ e : T                            Ø, x : bool ⊢  x : bool
+   ––––––––––––––––––––––––– ->Intro           –––––––––––––––––––––––––––––– ->Intro
+      Γ ⊢ (Lam x e) : S -> T                     Ø ⊢ (Lam x x) : bool -> bool
+      Ø   (Lam x x)   bool -> bool
+
+––––––––––––––––––––––– unitIntro
+Ø, y : bool ⊢ () : unit
+–––––––––––––––––––––––––––––––––– ->Intro
+    Ø ⊢ (Lam y ()) : bool -> unit
+
+  (x : T) ∉ (Ø, y : S)
+  ––––––––––––––––––––
+  Ø, y : S ⊢ x : T
+  –––––––––––––––––––––––––––
+    Ø ⊢ (Lam y x) : S -> T
+doesn't work because x is unknown
+
+ (x : int) ∈ (Ø, x : int, y : int)
+ –––––––––––––––––––––––––––––––
+ Ø, x : int, y : int ⊢ x : int
+ –––––––––––––––––––––––––––––––––––– ->Intro
+  Ø, x : int ⊢ (Lam y x) : int -> int
+  –––––––––––––––––––––––––––––––––––––––––––– ->Intro
+   Ø ⊢ (Lam x (Lam y x)) : int -> (int -> int)
+
+       (\x ->
+          (\y -> x))
+
+  (x : int) ∈ Ø, x : int               (x : int) ∈ Ø, x : int              
+  –––––––––––––––––––––– type-assum    –––––––––––––––––––––– type-assum 
+  Ø, x : int ⊢ x : int                  Ø, x : int ⊢ x : int            
+  –––––––––––––––––––––––––––––––––––––––––––––––––––––––––– type-add
+  Ø, x : int ⊢ (+ x x) : int
+  –––––––––––––––––––––––––––––––– ->Intro               –––––––––––– intIntro
+  Ø ⊢ (Lam x (+ x x)) : int -> int                        Ø ⊢ 5 : int
+  –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––– ->Elim
+   Ø ⊢ (Call (Lam x (+ x x)) 5) : int
+
+    (Call (Lam x (+ x x)) 5) |-> [5/x](+ x x)
+                               = (+ 5 5)
+
+    (+ 5 5) |-> 10
+

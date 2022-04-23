@@ -1,0 +1,146 @@
+465/865 Wednesday 2022-02-16
+Jana Dunfield
+Please mute your microphone when not speaking
+This lecture is recorded until about the 50-minute mark
+
+lec10.pdf: From addition to Lλ (L lambda, a programming language with lambda)
+
+program
+variables    x, y, z
+
+integers     n
+
+values       v ::= n
+                 | True
+		 | False
+		 | (Lam x e)
+		 | x                   -- maybe?
+
+expressions  e ::= n
+                 | (+ e e)
+                 | (- e e)
+		 | (= e e)
+		 | (< e e)
+		 | True
+		 | False
+		 | (Ite e e e)         -- if-then-else (Ite e1 e2 e3)  if e1 then e2 else e3
+		 | (Lam x e)           -- Lambda, anonymous function that takes an argument x and evaluates the body e
+		 | (Call e e)          -- (Call e1 e2)  call the function e1 with argument e2
+		 | x                   -- program variable
+
+anonymous function                    function call                 identifier
+                                      application                   λ-variable
+				      function application          λ-bound variable
+				      λ-application                 variable
+(Lam x e)        (CISC 465/865)       (Call e1 e2)                  x
+λx. e                                                               x
+\x -> e          (Haskell)            e1 e2                         x
+fn x => e        (Standard ML)        e1 e2                         x
+fun x -> e       (OCaml)              e1 e2                         x
+lambda x: e      (Python)             e1(e2)                        x
+x -> e           (Java)               e1(e2)                        x
+x => e           (JavaScript)         e1(e2)                        x
+[](type x) -> type {e}     (C++)      e1(e2)                        x
+
+
++----------+
+|  e ⇓ v   |  e evaluates to a value v (big-step)
++----------+
+
+  ––––––––––––– eval-const
+     n ⇓ n
+
+  e1 ⇓ n1     e2 ⇓ n2
+  ––––––––––––––––––– eval-add
+  (+ e1 e2) ⇓ n1 + n2
+
+  e1 ⇓ n1     e2 ⇓ n2
+  ––––––––––––––––––– eval-sub
+  (- e1 e2) ⇓ n1 - n2
+
+  e1 ⇓ n1     e2 ⇓ n2
+  ––––––––––––––––––– eval-equals
+  (= e1 e2) ⇓ n1 = n2                     -- where n1 = n2 is True if n1 is equal to n2, and False if n1 ≠ n2
+                                          -- "mathematical equality"
+
+  e1 ⇓ n1     e2 ⇓ n2                     -- where n1 < n2 is True if n1 is less than n2, and False if n1 ≥ n2
+  ––––––––––––––––––– eval-lessthan
+  (< e1 e2) ⇓ n1 < n2
+
+   –––––––––––––– eval-true
+   True ⇓ True
+
+   –––––––––––––– eval-false
+   False ⇓ False
+   
+  (< 3  2)  ⇓
+  3 is e1, 2 is e2
+Example:
+   –––––– eval-const    ––––––– eval-const
+   3 ⇓ 3                2 ⇓ 2
+   –––––––––––––––––––––––––––––––––– eval-lessthan
+   (< 3 2) ⇓ 3 < 2
+
+   –––––– eval-const    ––––––– eval-const
+   3 ⇓ 3                2 ⇓ 2
+   –––––––––––––––––––––––––––––––––– eval-lessthan
+   (< 3 2) ⇓ False
+
+   –––––––––––––– eval-false
+   False ⇓ False
+
+   e ⇓ True      ethen ⇓ v                      e ⇓ False     eelse ⇓ v
+   –––––––––––––––––––––––– eval-ite-then       –––––––––––––––––––––––– eval-ite-else  
+   (Ite e ethen eelse) ⇓ v		        (Ite e ethen eelse) ⇓ v
+   if e                               -- guard, condition, scrutinee  (the thing you are scrutinizing)
+     then ethen
+     else       eelse
+
+Determinacy: If e ⇓ v1 and e ⇓ v2 then v1 = v2.
+
+   –––––  ––––––
+   2 ⇓ 2  4 ⇓ 4
+   –––––––––––––
+   (+ 2 2) ⇓ 4
+   ––––––––––––––––––––––––– 
+   (Ite (+ 2 2) 1 10) ⇓
+
+   –––––––––––––––––––––– eval-lam
+   (Lam x e) ⇓ (Lam x e)                    -- ("functions are values")
+
+
+   (Lam x (+ x x)) ⇓ (Lam x (+ x x))        -- function that returns twice its argument     f(x) = x + x
+
+   (Lam x ebody) ⇓ (Lam x ebody)
+   
+   e1 ⇓ (Lam x ebody)     e2 ⇓ v2    [v2/x]ebody ⇓ v
+   –––––––––––––––––––––––––––––––––––––––––––––––––– eval-call
+             (Call e1 e2) ⇓ v
+	                                                                –––––   ––––––
+                                                                        3 ⇓ 3   3 ⇓ 3
+   ––––––––––––––––––––––––––––––––– eval-lam  ––––– eval-const         –––––––––––––––– eval-add
+   (Lam x (+ x x)) ⇓ (Lam x (+ x x))           3 ⇓ 3                     (+ 3 3) ⇓ 6
+   –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––– eval-call
+      (Call (Lam x (+ x x)) 3) ⇓ 6
+      
+–––––      ––––––
+1 ⇓ 1      2 ⇓ 2
+–––––––––––––––––
+(+ 1 2) ⇓ 3
+
+
+ [3/x](+ x x)   =   (+ 3 3)
+
+[v2/x](+ x x) ⇓ v
+
+
+   (Call (Lam x ebody) e2)
+   
+   ––––––––––––––––––––––––––––––––––
+
+
+
+Benjamin Pierce, Types and Programming Languages    -- in Queen's library
+Robert Harper, Practical Foundations for Programming Languages  -- ?
+
+

@@ -1,0 +1,302 @@
+465/865 Tuesday 2022-02-08
+Jana Dunfield
+Please mute your microphone when not speaking
+This lecture is recorded until about the 50-minute mark
+
+Still on lec5-7.pdf
+Natural deduction:
+
+atomic formulas   P, Q
+                  (we also use   "a > 0", etc.
+variables         a, b
+                  )
+formulas          A, B, C ::= P           atomic formula
+                            | A ⊃ B       implication  (A → B)
+			    | A ∧ B       conjunction (and)
+			    | A ∨ B       disjunction (or)
+			    | ∀a:nat. A   universal quantification (for all a)
+                            | ∃a:nat. A   existential quantification (there exists a)
+                            | True        truth (always true)
+                            | False       falsehood
+
++--------+
+| A true | formula A is true
++--------+
+ 
+  A true     B true            
+  ––––––––––––––––– ∧Intro 
+     (A ∧ B) true	   
+
+  A ∧ B true  	       A ∧ B true  	    
+  –––––––––– ∧Elim1    –––––––––– ∧Elim2 
+    A true               B true          
+
+       x[A true] 
+        .
+        .
+        .                  
+       B true             x
+  ––––––––––––––––– ⊃Intro 
+    (A ⊃ B) true           
+
+  A true        A ⊃ B true		 
+  A ⊃ B true    A true		 
+  –––––––––––––––––––– ⊃Elim	 
+         B true        
+
+  ——————————— TrueIntro
+   True true
+
+   No elimination rule (TrueElim) for True
+
+["True" is another symbol for "⊤" as used in e.g. CISC 204]
+["False" will be another symbol for "⊥" as used in e.g. CISC 204]
+
+    A true              B true
+  –––––––––– ∨Intro1   –––––––––– ∨Intro2
+  A ∨ B true           A ∨ B true	      (∨i1, ∨i2 in CISC 204)
+
+                   x[A true]    y[B true]
+                      .             .
+                      .             .
+                      .             .
+  A ∨ B true        C true       C true
+  –––––––––––––––––––––––––––––––––––––– ∨Elim
+                 C true
+
+Local soundness: (soundness of the elimination rules with respect to the introduction rules)
+
+Local completeness: (completeness of the elimination rules with respect to the introduction rules)
+
+Local soundness for True:
+  For every elimination rule, ...
+  There are no elimination rules, so local soundness holds.
+Local completeness for True:
+  For everything we put into the introduction rule, ...
+  We didn't put anything in to TrueIntro, so local completeness holds.
+
+Add rules for universal quantification, existential quantification, False
+
+              x[a:nat]
+
+               B true                  x
+ ––––––––––––––––––––––––––––––– ∀Intro
+       (∀a:nat. B) true
+
+   (∀a:nat. B) true              n : nat       
+   ––––––––––––––––––––––––––––––––––––– ∀Elim 
+                [n/a]B true                    
+      substitute n for a in B
+      replace a with n   in B
+
+   [m/n] even(n)   =   even(m)
+
+        B  =  even(a) ∨ True
+
+   [3/a]B  =  even(3) ∨ True
+
+        B2  =  even(a) ∨ odd(a)
+   [3/a]B2  =  even(3) ∨ odd(3)
+
+   [3/a]a  =  3
+
+    3
+   --- · a  =  3
+    a
+               b
+   [b/a]b  =  ––– b 
+               a
+   [b/a]b  = b
+   [b/a](even(b) ∨ odd(b)) = (even(b) ∨ odd(b))    because a does not appear in even(b) ∨ odd(b)
+   [b/a](even(b) ∨ odd(a)) = (even(b) ∨ odd(b))    because I replaced the a in odd(a) with b
+
+   (CISC 204?  Free variables?  Shadowing?  Capture-avoiding?  Avoiding for now.)
+
+   ∀a:nat. (even(a) ∨ odd(a)) true
+   –––––––––––––––––––––––––––––––
+       (even(0) ∨ odd(0)) true
+
+   ∀a:nat. (even(a) ∨ odd(a)) true
+   –––––––––––––––––––––––––––––––
+       (even(1) ∨ odd(1)) true
+
+   ∀a:nat. (even(a) ∨ odd(a)) true
+   –––––––––––––––––––––––––––––––
+       (even(66) ∨ odd(66)) true
+
+
+
+
+
+              x[a:nat]
+
+               B true                  x
+ ––––––––––––––––––––––––––––––– ∀Intro
+       (∀a:nat. B) true
+
+   (∀a:nat. B) true              n : nat       
+   ––––––––––––––––––––––––––––––––––––– ∀Elim 
+                [n/a]B true
+
+  B is (even(a) ∨ odd(a))
+
+  Knowing (∀a:nat. (even(a) ∨ odd(a))) true
+  is like knowing
+  (even(0) ∨ odd(0)) ∧ (even(1) ∨ odd(1)) ∧ (even(2) ∨ odd(2)) ∧ (even(3) ∨ odd(3)) ∧ ...
+  If ∧ is associated with 2, and True with 0, then ∀ is associated with infinity  
+   
+   
+   (∀a:nat. B) true              n : nat       
+   ––––––––––––––––––––––––––––––––––––– ? ∀Elim
+                    B true
+
+   (∀a:nat. even(a) ∨ odd(a)) true
+   ––––––––––––––––––––––––––––––––––––– ? ∀Elim
+             even(a) ∨ odd(a) true
+
+   (∀a:nat. even(a) ∨ odd(a)) true     5 : nat       
+   –––––––––––––––––––––––––––––––––––––––––––– ∀Elim
+               [5/a](even(a) ∨ odd(a)) true
+is equal to
+   (∀a:nat. even(a) ∨ odd(a)) true     5 : nat       
+   –––––––––––––––––––––––––––––––––––––––––––– ∀Elim
+              (even(5) ∨ odd(5)) true
+
+
+∃a:nat. B
+
+   [0/a]B  true            [1/a]B true            [2/a]B true
+  ––––––––––––––––       –––––––––––––––        –––––––––––––––––       ....
+  ∃a:nat. B true          ∃a:nat. B true        ∃a:nat. B true
+
+   n : nat   ([n/a]B) true   
+   ––––––––––––––––––––––– ∃Intro
+      (∃a:nat. B) true
+                               x[a:nat]
+			       y[B true]
+                                  :
+				  :
+   (∃a:nat. B) true            C true          x,y
+   –––––––––––––––––––––––––––––––––––––– ∃Elim
+                   C true
+
+
+
+  ——————————— TrueIntro   1 intro for True, 0 elims for True
+   True true
+
+0 intro for False, 1 elim for False
+2 is associated with ∨, infinity is associated with ∃, and 0 is associated with False
+  
+    False true
+    –––––––––– FalseElim
+      C true                    "from falsehood, can prove anything"
+
+
+How to do proofs:
+
+ 1. Use something that's given
+
+     If we're trying to prove "For all formulas A, if D derives A true  then  (A ∧ A) true.",
+     then the following are given:
+            A is a formula
+	    A true           equivalently, there exists a derivation of A true
+ 2. Use a rule (forwards), building a new derivation.
+
+        A true               Given
+        A ∧ A true           By rule ∧Intro       ⇐ builds a new derivation
+
+ 3. Case split (case analyze) on something defined using a grammar:
+
+      Consider cases of A:
+
+         • A = P:
+
+              (A ∧ A) true          ?
+	 • A = (A1 ⊃ A2):
+
+              (A ∧ A) true          ?
+         • A = (A1 ∧ A2):
+	 ...
+	 • A = False:
+
+      In each case, prove whatever you're trying to prove.
+
+ 4. Case split (case analyze) on a derivation:
+
+      Consider cases of the rule concluding  A true:
+
+         • ∧Intro:
+         • ∧Elim1:
+         • ∧Elim2:
+	 • ...
+
+ 5. Invert on a rule (backwards):
+
+     Suppose we're in the ∧Elim2 case:
+     A true        Given
+        • ∧Elim2:
+
+  A ∧ B true
+  –––––––––– ∧Elim2
+    B true
+  A1 ∧ A2 true
+  –––––––––––– ∧Elim2
+    A2 true
+    A  true
+  A = A2
+
+          A = A2          By inversion on ∧Elim2
+	A1 ∧ A2 true      By inversion on ∧Elim2
+	
+ 6. "By above equation"
+
+	A1 ∧ A true       By above equation
+
+ 7. (If doing a proof by induction) By IH
+
+ 8. By arithmetic
+
+        1 + 2 ⇓ 3          Given
+        3 = 1 + 2          By arithmetic
+	3 ⇓ 3              By above equation
+	
+	(+ 1 2) ⇓ 3        Given
+	3 ⇓ 3              By eval-const
+
+a2 Conjecture 3.1:
+For all expressions e, it is the case that e : int.
+
+"What do we know, and what are we trying to prove?"
+
+Proof: By induction on e.
+IH:
+  1. Copy the statement
+  2. Rename everything, say to e'
+  3. Add the condition that the new thing is smaller than the thing we're inducting on
+
+   e is an expression         Given
+
+  Consider cases of e
+
+  • Case e = (+ e1 e2)
+
+   e1 : int                   By IH
+   e2 : int                   By IH
+   (+ e1 e2) : int            By some rule?
+   e : int                    By above equation
+[Trying to build a derivation of  e : int.]
+
+
+?  (+ e1 e2) = n1 + n2
+
+     +    ≠    n1+n2
+    / \
+  e1   e2
+
+  (+ e1 e2) ⇓ n1+n2 
+
+     e1 ⇓ n1   e2 ⇓ n2 
+     ––––––––––––––––– 
+     (+ e1 e2) ⇓ n1+n2
+     

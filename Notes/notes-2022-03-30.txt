@@ -1,0 +1,187 @@
+465/865 Wednesday 2022-03-30
+Jana Dunfield
+This lecture is (hopefully) recorded until about the 50-minute mark
+
+https://stream.queensu.ca/hapi/v1/contents/permalinks/MacCorryD216/view
+
+If you are watching the stream above, please connect to Zoom, the audio is more likely to work there
+
+lec13.pdf
+
+Value interpretation of subtyping:   (subset interpretation)
+
+   If S <: T then the values of S are a subset of the values of T
+equivalently:
+   If S <: T then every value of type S is also a value of type T
+equivalently:
+   If S <: T then, for all v such that    Ø ⊢ v : S ,
+                     it is the case that  Ø ⊢ v : T .
+
+bool <: int
+Ø ⊬ False : int
+
+int <: float
+Ø ⊢ 3 : int
+       Ø ⊬ 3 : float
+Assuming 3 is stored differently from 3.0, I don't want 3 to have type float
+
+floatliteral   floating-point literals, like   0.0, 0.1, 1.0, -2.3, (unspeakable? NaN)
+S, T ::= ... | float
+   e ::= ... | floatliteral
+
+––––––––––––––––––––––––             –––––––––––––          3     32-bit
+Γ ⊢ floatliteral : float             Γ ⊢ 3 : float          3.0   32-bit
+
+
+Coercion (also called "cast") interpretation of subtyping:
+
+   If S <: T then every value of type S can be converted to a value of type T
+                                               (coerced)
+                                               (cast)
+
+This interpretation allows us to automatically convert ints to floats.
+
+S, T ::= ... | float
+
+   –––––––––––– sub-int-float
+   int <: float
+
+Whether this is a good idea is another question.
+                                         2**15
+Small integers can be converted exactly: 32768 will become 32768.0.
+Integers that are large enough to fit in an  int,  but not in a  float,
+cannot be converted exactly.
+
+(Exactly what counts as "small" depends on the language,
+processor architecture, etc.  I'm using the laptop mentioned in the notes,
+but it's a very old laptop and C is still an old language.
+Changing 32 bits to 64 bits doesn't help much:
+not all 64-bit integers will fit into a 64-bit float without rounding.)
+
+The price of a language that automatically converts from int to float
+is that the program doesn't show you where the conversion is done.
+
+We may still decide we want to do some automatic conversions,
+which raises several questions:
+
+ 1. which conversions should we do?
+ 2. what mistakes should we avoid?
+ 3. how do we implement them?
+
+S, T ::= ... | double | string
+
+     Γ ⊢ e : S     S <: T             
+     –––––––––––––––––––– type-subsume
+         Γ ⊢ e : T
+Example: automatic conversion from int to double, from int to string, and double to string.
+
+–––––––––––––– sub-int-double    ––––––––––––– sub-int-string    –––––––––––––––– sub-double-string
+int <: double                    int <: string                   double <: string
+Example:
+5 converts to 5.0                5 converts to "5"               5.0 converts to "5.0"
+                                                                [NaN converts to "NaN" ...]
+                                                                (when you stare into IEEE 754,
+                                                                 it stares back at you)
+Assume: (print : string -> unit) ∈ Γ
+
+                                 ––––––––––– intIntro    ––––––––––––– sub-int-string
+                                 Γ ⊢ 5 : int             int <: string
+                                 ––––––––––––––––––––––––––––––––––––––––– type-subsume
+    Γ ⊢ print : string -> unit     Γ ⊢ 5 : string
+    ––––––––––––––––––––––––––––––––––––––––––––– →Elim
+             Γ ⊢ print 5 : unit
+             
+                                             –––––––––––––– sub-int-double
+                               Γ ⊢ 5 : int    int <: double
+                               –––––––––––––––––––––––––––– type-subsume  –––––––––––––––– sub-double-string
+                                 Γ ⊢ 5 : double                           double <: string
+                                 ––––––––––––––––––––––––––––––––––––––––––––––––––––––––– type-subsume
+    Γ ⊢ print : string -> unit     Γ ⊢ 5 : string
+    ––––––––––––––––––––––––––––––––––––––––––––– →Elim
+             Γ ⊢ print 5 : unit
+
+S, T ::= ... | char | short | int | long | long long
+                                                              S1 <: S2      S2 <: S3
+     –––––––––––––––––––––––     ––––––––––––––––––           ––––––––––––––––––––––   ––––––
+          int <: long              long <: string                 S1 <: S3             S <: S
+
+             Γ, x : int ⊢ print x : unit
+
+             Γ ⊢ print 5.2 
+Seems unnecessary to convert to double and then to string
+
+
+–––––––––––––––––––––––––––––– sub-int-double 
+int <: double  by Int.toDouble                   Int.toDouble : int -> double
+
+   –––––––––––––––––––––––––––––– sub-int-string    ––––––––––––––––––––––––––––––––––– sub-double-string 
+   int <: string  by Int.toString                   double <: string by Double.toString
+
+     Γ ⊢ e : S ==> e1             S <: T by eConvert                Γ ⊢ e1 : S -> T ==> e1'   Γ ⊢ e2 : S ==> e2'
+     ––––––––––––––––––––––––––––––––––––––––––––––– type-subsume   ––––––––––––––––––––––––––––––––––––– →Elim
+         Γ ⊢ e : T ==> (Call eConvert e1)                            Γ ⊢ (Call e1 e2) : T ==> (Call e1' e2')
+
+
+
+       –––––––––––––––––––––––––––––––––––––––––
+       int <: int -> int  by (Lam x (Lam y 5))         int -> (int -> int)
+
+       –––––––––––––––––––––––––––––––––––––––––
+       int <: int -> int  by (Lam x (Lam y x))         int -> (int -> int)
+
+                       (Call (Lam x (Lam y x)) 3
+                   |-> (Lam y 3)
+ 
+                       (Call Int.toDouble 3)  |->  3.0
+
+                    f : double -> double ⊢ (Call f 3) : double
+                    f : double -> double ⊢ (Call f (Call Int.toDouble 3)) : double
+
+     ––––––––––––––––– intIntro
+     Γ ⊢ n : int ==> n
+
+     Γ ⊢ e : S ==> e1             S <: T by eConvert
+     ––––––––––––––––––––––––––––––––––––––––––––––– type-subsume
+         Γ ⊢ e : T ==> (Call eConvert e1)
+
+            Γ ⊢ e : S  ==>  e'
+
+                    f : double -> double ⊢ (Call f 3) : double   ==>  (Call f (Call Int.toDouble 3))
+                                                  3 : int
+     Γ ⊢ 3 : int ==> 3           int <: double by Int.toDouble
+     –––––––––––––––––––––––––––––––––––––––––––––––––––––––– type-subsume
+         Γ ⊢ 3 : double ==> (Call Int.toDouble 3)
+
+
+
+                                 ––––––––––– intIntro    ––––––––––––– sub-int-string
+                                 Γ ⊢ 5 : int             int <: string
+                                     ==> 5               ==> Int.toString
+                                 –––––––––––––––––––––––––––––––––––––––––– type-subsume
+    Γ ⊢ print : string -> unit     Γ ⊢ 5 : string ==> (Call Int.toString 5)
+        ==> print
+    ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––– →Elim
+             Γ ⊢ (Call print 5) : unit  ==>  (Call print (Call Int.toString 5))
+    prints  "5"
+             
+                                             –––––––––––––– sub-int-double
+                               Γ ⊢ 5 : int    int <: double
+                                   ==> 5     ==> Int.toDouble
+                               ––––––––––––––––––––––––––––– type-subsume  –––––––––––––––– sub-double-string
+                                 Γ ⊢ 5 : double                           double <: string
+                                     ==> (Call Int.toDouble 5)            ==> Double.toString
+                                 –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––– type-subsume
+    Γ ⊢ print : string -> unit     Γ ⊢ 5 : string  ==> (Call Double.toString (Call Int.toDouble 5))
+        ==> print
+    –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––– →Elim
+       Γ ⊢ (Call print 5) : unit ==> (Call print (Call Double.toString (Call Int.toDouble 5)))
+                                                                       5.0
+                                                       "5.0"
+    prints  "5.0"
+    "Subtyping is incoherent"
+
+
+
+
+
+

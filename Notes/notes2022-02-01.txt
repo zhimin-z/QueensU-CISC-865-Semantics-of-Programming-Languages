@@ -1,0 +1,192 @@
+465/865 Tuesday 2022-02-01
+Please mute your microphone when not speaking
+This lecture is recorded until about the 50-minute mark
+
+0. lec4.pdf Section 3, Typing:
+Integers      n
+Expressions   e ::= n
+                  | (+ e e)
+		  | (- e e)   (momentary)
+Types         A ::= int
+
++–––––––+
+| e : A | expression e has type A
++–––––––+
+                           e1 : int   e2 : int
+   ––––––– type-const      ––––––––––––––––––– type-add
+   n : int                   (+ e1 e2) : int
+
+
+
+  e1 : int   e2 : int
+  ––––––––––––––––––– type-subtract
+     (- e1 e2) : int
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+lec4.pdf Exercise 1*:
+"State and prove (by induction)
+that every expression has type int."
+
+Conjecture:
+
+  For all expressions e,
+  e : int.
+
+Proof: By induction on e.
+IH: 
+ For all expressions e' such that e' < e,      [e' is a proper subexpression of e]
+  e' : int.
+
+Consider cases of the expression e:
+
+   • Case: e = n
+
+       n : int     By type-const
+       e : int     By above equation
+       
+   • Case: e = (+ e1 e2)
+
+       e1 : int         By IH (with e1 as e')
+       e2 : int         By IH (with e2 as e')
+       (+ e1 e2) : int  By type-add
+       e : int          By above equation
+
+   • Case: e = (- e1 e2)
+
+       e1 : int         By IH (with e1 as e')
+       e2 : int         By IH (with e2 as e')
+
+       (- e1 e2) : int  ?? By type-subtract, if we
+                            add it to the system
+       e : int          By above equation
+[]
+
+(What if we add (- e e) to the grammar of expressions?)
+
+
+lec5-7.pdf: Natural deduction
+
+1. Context
+
+Logic is connected to type systems (static semantics)
+through the "Curry–Howard correspondence":
+
+    programs     ≈ proofs
+    
+    types        ≈ formulas
+    
+    inhabitation ≈ provability (truth)
+      of a type     of a formula
+
+For example, Peirce's law
+
+  ((P → Q) → P) → P
+
+is the type of the call/cc operator.
+
+
+2. Background
+
+- Axiom systems
+
+a is an integer
+a > 0
+
+(a is an integer) & (a > 0)
+a > 0                          By axiom 2.21
+
+- Do mathematicians use "natural deduction"?
+
+- "Gentzen, backwards"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+3. Natural deduction
+
+atomic formulas   P, Q
+                  (we also use   "a > 0", etc.
+variables         a, b
+                  )
+formulas          A, B, C ::= P           atomic formula
+                            | A ⊃ B       implication  (A → B)  "if A then B"
+			    | A ∧ B       conjunction (and)   "∧" "/\" And
+			    | A ∨ B       disjunction (or)   "vel" = "or"
+			    | ∀a:nat. A   universal quantification (for all a)
+                            | ∃a:nat. A   existential quantification (there exists a)
+
++--------+
+| A true | A is true
++--------+
+ 
+  A true     B true                A ∧ B true             A ∧ B true
+  ––––––––––––––––– ∧Intro         –––––––––– ∧Elim1      –––––––––– ∧Elim2
+     (A ∧ B) true                    A true                 B true
+
+      x[A true]
+        .
+        .
+        .
+       B true             x           A ⊃ B true    A true
+  ––––––––––––––––– ⊃Intro            –––––––––––––––––––– ⊃Elim
+    (A ⊃ B) true                             B true        "modus ponens"
+
+
+
+      x[A true]            ◄◄◄ floating assumption
+        .                            .
+        .                            .
+        .                            .
+       B true             x ◄◄◄◄◄◄◄◄◄
+  ––––––––––––––––– ⊃Intro
+    (A ⊃ B) true
+
+      x[A true]
+         
+     –––––––– x                Use the name of the assumption, x, as a rule name
+      A true             x
+  –––––––––––––––– ⊃Intro
+    (A ⊃ A) true
+    (A ⊃ B) 
+
+
+Additional example, done after recording stopped:
+
+    x[A1 ∧ A2 true]
+
+      –––––––––––– x
+      A1 ∧ A2 true
+      –––––––––––– ∧Elim2    use elim rule? ⊃Elim doesn't work (don't have any ⊃ assumptions),
+       A2 true               x              ∧Elim1 doesn't work (concludes A1 true),
+  –––––––––––––––––––– ⊃Intro               ∧Elim2 works
+  (A1 ∧ A2) ⊃ A2 true
+if A1 and A2, then A2
+line up with conclusion of ⊃Intro:
+   A        ⊃ B

@@ -1,0 +1,153 @@
+465/865 Wed. 2022-01-12
+Covering lec1.pdf 3.3, 3.4, 4
+Reminder: Mute your microphone when not speaking
+
+3.3 Dynamic semantics: what programs "do"
+    e.g. denotational semantics, operational semantics
+
+3.4 Static semantics: what programs "are"
+    e.g. types    n : Integer   "n has type Integer"
+
+4 Syntax
+4.1 Grammars:
+   a set of nonterminals ("nonterminal symbols")
+   ["nonterminals" will also be called "meta-variables"]
+   for each nonterminal,
+     a list of their possible syntactic forms
+   (terminal symbols)
+
+   
+B "can have the forms" 0 | 1
+bits
+B ::= 0
+      | 1
+"a B is either 0 or 1"
+
+B → 0    production
+B → 1    production
+
+Each nonterminal has a set of strings that it produces
+Language(B) = {0, 1}
+
+Define S to be a sequence of 0s and 1s
+Define B to be either 0 or 1
+
+sequences of bits
+B ::= 0 | 1
+S ::= B
+      | B S
+B → 0
+B → 1
+S → B
+S → B S
+
+does 10 mean 2?
+Grammars specify syntax, not meaning
+
+S → B S
+   → 1 S
+   → 1 B
+   → 1 0
+
+"1 0" or "10" is in Language(S)
+S → ... → 1 0
+
+S → B
+   → 1
+"1" is in Language(S)
+
+Arithmetic expressions with + and -
+
+11101
+
+E ::= S
+     | E + E
+     | E - E
+what is Language(E)?
+E → E - E
+   → E - S
+   → E - B
+   → E - 0
+   → S - 0
+   → B - 0
+   → 1 - 0
+therefore the string  1 - 0  is in Language(E)
+
+E → ... → 2    can't produce 2 from E
+
+        E
+     / |  \
+    1  -  0
+
+       E
+     / | \
+    S  -  S
+    |       |
+    1      0
+
+E → E - E
+   → E - E + E
+   → S - E + E                      E
+   → B - E + E                   / |  \
+   → 1 - S + E                  E  -  E
+   → 1 - B + E                       / | \
+   → 1 - 0 + E                      E +  E
+   → 1 - 0 + B
+   → 1 - 0 + 1
+
+therefore, the string  1 - 0 + 1  is in Language(E)
+does the string mean (1 - 0) + 1
+                       or 1 - (0 + 1)  ?
+another way to produce 1 - 0 + 1:
+E → E + E                            E
+   → E - E + E                   /  |  \
+                                      E  +  E
+                                   / | \
+				  E -  E
+Using Lisp syntax:
+
+LE  ::= S
+        | (+ LE LE)
+        | (- LE LE)
+
+"(1 - 0) + 1" in Lisp syntax:  (+ (- 1 0) 1)
+"1 - (0 + 1)" in Lisp syntax:  (- 1 (+ 0 1))
+
+"reverse Polish notation" for "(1 - 0) + 1":  1 0 - 1 +
+
+aside: could also add a production to E:
+   E → ( E )
+
+31415 + 465
+one token: 31415
+another token: +
+another token: 465
+
+Draw the parse tree for (+ (- 11 01) 0) without
+breaking down individual characters.
+So don't break down 11 into 1  1.
+              +
+             / \
+	    -   0
+	   / \
+	 11 01
+
+S → ... → 10
+
+S → B S
+  → ...
+  → 1 0
+
+E ::= S
+     | (+ E E)
+     | (- E E)
+
+S → ... → 0 1
+lec1.pdf Exercise 3 but with 0 1 instead of 1 0
+Produce the string (+ 01 1):
+E → (+ E E)
+   → (+ S E)
+   → (+ 01 E)
+   → (+ 01 S)
+   → (+ 01 1)
+   

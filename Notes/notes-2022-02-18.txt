@@ -1,0 +1,205 @@
+465/865 Friday 2022-02-18
+Jana Dunfield
+Please mute your microphone when not speaking
+This lecture is recorded until about the 50-minute mark
+
+lec10.pdf: From addition to Lλ (L lambda, a programming language with lambda)
+
+program
+variables    x, y, z
+
+integers     n
+
+values       v ::= n
+                 | True
+		 | False
+		 | (Lam x e)
+		 | x                   -- maybe?
+
+expressions  e ::= n
+                 | (+ e e)
+                 | (- e e)
+		 | (= e e)
+		 | (< e e)
+		 | True
+		 | False
+		 | (Ite e e e)         -- if-then-else (Ite e1 e2 e3)  if e1 then e2 else e3
+		 | (Lam x e)           -- Lambda, anonymous function that takes an argument x and evaluates the body e
+		 | (Call e e)          -- (Call e1 e2)  call the function e1 with argument e2
+		 | x                   -- program variable
+
+
++----------+
+|  e ⇓ v   |  e evaluates to a value v (big-step)
++----------+
+
+  ––––––––––––– eval-const
+     n ⇓ n
+
+  e1 ⇓ n1     e2 ⇓ n2
+  ––––––––––––––––––– eval-add
+  (+ e1 e2) ⇓ n1 + n2
+
+  e1 ⇓ n1     e2 ⇓ n2
+  ––––––––––––––––––– eval-sub
+  (- e1 e2) ⇓ n1 - n2
+
+  e1 ⇓ n1     e2 ⇓ n2
+  ––––––––––––––––––– eval-equals
+  (= e1 e2) ⇓ n1 = n2                     -- where n1 = n2 is True if n1 is equal to n2, and False if n1 ≠ n2
+                                          -- "mathematical equality"
+
+  e1 ⇓ n1     e2 ⇓ n2                     -- where n1 < n2 is True if n1 is less than n2, and False if n1 ≥ n2
+  ––––––––––––––––––– eval-lessthan
+  (< e1 e2) ⇓ n1 < n2
+
+   –––––––––––––– eval-true
+   True ⇓ True
+
+   –––––––––––––– eval-false
+   False ⇓ False
+   
+  (< 3  2)  ⇓
+  3 is e1, 2 is e2
+Example:
+   –––––– eval-const    ––––––– eval-const
+   3 ⇓ 3                2 ⇓ 2
+   –––––––––––––––––––––––––––––––––– eval-lessthan
+   (< 3 2) ⇓ 3 < 2
+
+   –––––– eval-const    ––––––– eval-const
+   3 ⇓ 3                2 ⇓ 2
+   –––––––––––––––––––––––––––––––––– eval-lessthan
+   (< 3 2) ⇓ False
+
+   ––––––––––––––––––––– eval-lam
+   (Lam x e) ⇓ (Lam x e)
+
+   –––––––––––––– eval-false
+   False ⇓ False
+
+   e ⇓ True      ethen ⇓ v                      e ⇓ False     eelse ⇓ v
+   –––––––––––––––––––––––– eval-ite-then       –––––––––––––––––––––––– eval-ite-else  
+   (Ite e ethen eelse) ⇓ v		        (Ite e ethen eelse) ⇓ v
+
+   e1 ⇓ (Lam x ebody)     e2 ⇓ v2    [v2/x]ebody ⇓ v
+   –––––––––––––––––––––––––––––––––––––––––––––––––– eval-call
+             (Call e1 e2) ⇓ v
+
+
+	                                                                –––––   ––––––
+                                                                        3 ⇓ 3   3 ⇓ 3
+   ––––––––––––––––––––––––––––––––– eval-lam  ––––– eval-const         –––––––––––––––– eval-add
+   (Lam x (+ x x)) ⇓ (Lam x (+ x x))           3 ⇓ 3                     (+ 3 3) ⇓ 6
+   –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––– eval-call
+      (Call (Lam x (+ x x)) 3) ⇓ 6
+
+ [3/x](+ x x)   =   (+ 3 3)
+
+[v2/x](+ x x) ⇓ v
+[v2/x](+ x x) = (+ v2 v2)
+
+lec10.pdf Exercise 1
+
+–––––––––––––––––––––––– eval-lam
+(Lam x (Lam y (- y x)))          ––––– eval-const ––––––––––––––––eval-lam
+⇓ (Lam x (Lam y (- y x)))        1 ⇓ 1             (Lam y (- y 1))
+  (Lam x ebody          )                        ⇓ (Lam y (- y 1))
+–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––– eval-call            –––––––ec  ––––––eval-const
+   (Call (Lam x (Lam y (- y x))) 1 ) ⇓ (Lam y (- y 1))                                  10 ⇓ 10    1 ⇓ 1
+                                       (Lam x ebody  )            ––––––– eval-const    ––––––––––––––––– eval-sub
+   (Call e1                      e2)                              10 ⇓ 10               (- 10 1) ⇓ 9
+                                                                  e2 ⇓ v2
+   –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––– eval-call
+       (Call (Call (Lam x (Lam y (- y x))) 1) 10) ⇓ 9
+       (Call e1                               e2)
+[CISC 360: Haskell:  (\x -> (\y -> y - x)) 1 10
+
++----------------+
+|   e ⇓ v        |
++----------------+
+
++----------------+
+|   e |-> e'     |  small-step
++----------------+
+
++--------------–––––--–––––––+
+| <S; C; e> |-> <S'; C'; e'> | abstract machine
++----------------––––––––––––+
+
+[1/x](Lam y (- y x)) = (Lam y (- y 1))
+
+[10/y](- y 1) = (- 10 1)
+                                                –––––e-c  –––––– eval-const
+   ––––––––––––––––– eval-lam                   9 ⇓ 9     9 ⇓ 9
+   (Lam x (+ x x))                see above     ––––––––––––––– eval-add
+   ⇓ (Lam x (+ x x))            (- 10 1) ⇓ 9    (+ 9 9) ⇓ 18
+   –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––– eval-call
+        (Call (Lam x (+ x x)) (- 10 1)) ⇓ 18
+
+[9/x](+ x x) = (+ 9 9)
+
+lec10.pdf Exercise 1:
+
+   e1 ⇓ (Lam x ebody)     e2 ⇓ v2    [v2/x]ebody ⇓ v
+   –––––––––––––––––––––––––––––––––––––––––––––––––– eval-call
+             (Call e1 e2) ⇓ v
+
+Alternative version of eval-call:
+   e1 ⇓ (Lam x ebody)                [e2/x]ebody ⇓ v
+   –––––––––––––––––––––––––––––––––––––––––––––––––– eval-call-??
+             (Call e1 e2) ⇓ v
+
+                                      see above         see above
+   ––––––––––––––––– eval-lam         (- 10 1) ⇓ 9      (- 10 1) ⇓ 9
+   (Lam x (+ x x))                    –––––––––––––––––––––––––––––– eval-add
+   ⇓ (Lam x (+ x x))                   (+ (- 10 1) (- 10 1)) ⇓ 18
+   –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––– eval-call-??
+        (Call (Lam x (+ x x)) (- 10 1)) ⇓ 18
+
+[(- 10 1)/x](+ x x) = (+ (- 10 1) (- 10 1))
+
+Imagine (- 10 1) were (Call ... ...) that requires 10,000 arithmetic operations
+
+eval-call-??:   could lead to more work
+eval-call-??:   simpler (one less premise)
+
+   ––––––––––––––––––––– eval-lam  see above           –––––– eval-const
+   (Lam x 0) ⇓ (Lam x 0)           (- 10 1) ⇓ 9        0 ⇓ 0
+   ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––– eval-call
+         (Call (Lam x 0) (- 10 1)) ⇓ 0
+
+[9/x]0 = 0
+
+   ––––––––––––––––––––– eval-lam       –––––– eval-const
+   (Lam x 0) ⇓ (Lam x 0)                0 ⇓ 0
+   ––––––––––––––––––––––––––––––––––––––––––––––––––––––– eval-call-??
+         (Call (Lam x 0) (- 10 1)) ⇓ 0
+
+[(-10 1)/x]0 = 0
+
+eval-call-??:   could lead to less work (if the argument is not used)
+
+eval-call:     call-by-value (CBV)  replacing x with the value v2                 SML, OCaml  lots of languages, C++, 
+eval-call-??:  call-by-name  (CBN)  replacing x with the expression e2
+too complicated
+ to write now: call-by-need:        replace x with a pointer to e2
+                                    if ebody uses x, evaluate e2 ⇓ v2 and replace e2 with v2    Haskell
+
+(Call (Lam x ebody) e2) |-> [e2/x]ebody
+
+				     
+(\x -> 2 + 2)
+
+(Lam x (+ 2 2))
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,231 @@
+465/865 Wednesday 2022-02-02
+Please mute your microphone when not speaking
+This lecture is recorded until about the 50-minute mark
+
+
+On lec5-7.pdf
+Natural deduction:
+
+atomic formulas   P, Q
+                  (we also use   "a > 0", etc.
+variables         a, b
+                  )
+formulas          A, B, C ::= P           atomic formula
+                            | A ⊃ B       implication  (A → B)  "if A then B"
+			    | A ∧ B       conjunction (and)   "∧" "/\" And
+			    | A ∨ B       disjunction (or)   "vel" = "or"
+			    | ∀a:nat. A   universal quantification (for all a)
+                            | ∃a:nat. A   existential quantification (there exists a)
+
++--------+
+| A true | formula A is true
++--------+
+
+Today, 5 rules:
+ 
+  A true     B true         
+  ––––––––––––––––– ∧Intro
+     (A ∧ B) true
+      ? ∧ Q  true
+
+A ∧ B true           A ∧ B true
+–––––––––– ∧Elim1    –––––––––– ∧Elim2
+  A true               B true
+
+
+      x[A true]
+        .
+        .
+        .
+       B true             x
+  ––––––––––––––––– ⊃Intro 
+    (A ⊃ B) true           
+
+  A true        A ⊃ B true		 
+  A ⊃ B true    A true		 
+  –––––––––––––––––––– ⊃Elim	 
+         B true        
+[
+  A true        B ⊃ A true		 
+  –––––––––––––––––––––––– ?????   this would not be sound (with respect to what implication should mean)
+         B true
+]
+
+[discussion of "stacking" premises
+A true   C true
+B true   C2 true
+––––––––––––––––
+]
+
+
+A true   C true   B true   C2 true
+––––––––––––––––––––––––––––––––––
+
+if A ⊃ B true and A true then B true
+
+if A true and A ⊃ B true then B true
+
+if everything in the set {A ⊃ B true, A true} is derivable then B true
+
+assumptions labelled x, y, z
+plus use of assumption: for example,
+to use an assumption y[B ∧ C true], write
+
+    –––––––––– y
+    B ∧ C true
+
+
+
+
+
+
+
+
+
+      x[A true]            ◄◄◄ floating assumption
+        .                            .
+        .                            . scope
+        .                            .
+       B true             x ◄◄◄◄◄◄◄◄◄
+  ––––––––––––––––– ⊃Intro
+    (A ⊃ B) true
+
+
+Examples:
+
+1. ((Q ∧ Q) ⊃ Q) true
+
+
+
+         z[Q ∧ Q true]
+        
+         –––––––––– z
+         Q ∧ Q true
+         –––––––––– ∧Elim2
+            Q true                   z
+  –––––––––––––––––––––––––––– ⊃Intro
+       ((Q ∧ Q) ⊃ Q) true
+
+
+
+           z[Q ∧ Q true]
+   
+          –––––––––– z
+          Q ∧ Q true
+          –––––––––– ∧Elim1
+            Q true                   z
+  –––––––––––––––––––––––––––– ⊃Intro
+       ((Q ∧ Q) ⊃ Q) true
+
+
+           z[Q ∧ Q true]
+   
+      –––––––––– z     –––––––––– z
+      Q ∧ Q true       Q ∧ Q true
+      –––––––––– ∧E1   ––––––––––– ∧Elim2
+        Q true          Q true
+        –––––––––––––––––––––––– ∧Intro
+          Q ∧ Q true
+          –––––––––– ∧Elim2
+            Q true                   z
+  –––––––––––––––––––––––––––– ⊃Intro
+       ((Q ∧ Q) ⊃ Q) true
+
+
+        (A      ⊃ B) true
+
+
+
+           z[Q ∧ Q true]
+
+        ? true  Q true           doesn't help, now trying to derive Q true
+        –––––––––––––– ∧Intro    same as in the premise of ⊃Intro
+          ? ∧ Q true
+          –––––––––– ∧Elim2
+            B true
+            Q true                   z
+  –––––––––––––––––––––––––––– ⊃Intro
+       ((Q ∧ Q) ⊃ Q) true
+        (A      ⊃ B) true
+        A is Q ∧ Q
+        B is Q
+                                    ⊃   root (head connective)
+                                   / \
+                                  ∧   Q
+                                 / \
+                                Q   Q
+
+
+2. (P1 ∧ P2) ⊃ (P2 ∧ P1) true
+
+
+
+
+         x[(P1 ∧ P2) true]
+
+        
+       –––––––––––– x      –––––––––––– x 
+       P1 ∧ P2 true        P1 ∧ P2 true
+       –––––––––––– ∧Elim2 –––––––––––– ∧Elim1
+          P2 true            P1 true
+        ––––––––––––––––––––––––––––––– ∧Intro
+           P2 ∧ P1 true                               x
+  ––––––––––––––––––––––––––––––––––––––––––––– ⊃Intro
+   (P1 ∧ P2) ⊃ (P2 ∧ P1) true
+
+->
+   P ∧ Q is equivalent to Q ∧ P
+   but we are not allowed to use that within a derivation
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+3. (Q ⊃ (P ⊃ Q)) true
+
+          x[Q true]
+          y[P true]
+
+         ––––––––––– x
+             Q true        y
+        –––––––––––– ⊃Intro
+        (P ⊃ Q) true              x
+   –––––––––––––––––––––––– ⊃Intro
+      (Q ⊃ (P ⊃ Q)) true
+
+
+
+
+4. something that needs ⊃Elim
+  
+
+          x[((P ⊃ Q) ∧ P) true]
+
+          –––––––––––––––– x        ––––––––––––––––– x
+          (P ⊃ Q) ∧ P true          (P ⊃ Q) ∧ P true          
+          –––––––––––––––– ∧Elim1   –––––––––––––––––– ∧Elim2
+             P ⊃ Q true                   P true
+             ––––––––––––––––––––––––––––––––––––––––– ⊃Elim
+               Q true                     x
+       –––––––––––––––––––––––––––– ⊃Intro
+         ((P ⊃ Q) ∧ P) ⊃ Q true
+
+
+Can we use proof checkers?
+e.g., Jape:
+Yes, as long as you take responsibility
+for translating between exactly how Jape does things and
+how the rules are presented in this course

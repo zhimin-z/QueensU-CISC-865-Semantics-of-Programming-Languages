@@ -1,0 +1,419 @@
+465/865 Tuesday 2022-03-22
+Jana Dunfield
+This lecture is (hopefully) recorded until about the 50-minute mark
+
+https://stream.queensu.ca/hapi/v1/contents/permalinks/MacCorryD216/view
+
+If you are watching the stream above, please connect to Zoom, the audio is more likely to work there
+
+Today: Continuing lec12.pdf.
+
+
++–––––––––––––+
+| Γ ⊢ e : S   |  Under typing assumptions Γ, expression e has type S
++–––––––––––––+
+  turnstile "⊢" read "entails"
+
+   ––––––––––– intIntro
+   Γ ⊢ n : int
+
+   ––––––––––––– unitIntro
+   Γ ⊢ () : unit
+
+   (x : S) ∈ Γ
+   ––––––––––––––––– type-assum
+       Γ ⊢ x  : S
+
+    Γ, x : S ⊢ e : T                    Γ ⊢ e1 : S -> T   Γ ⊢ e2 : S
+––––––––––––––––––––––––– ->Intro       –––––––––––––––––––––––––––– ->Elim
+   Γ ⊢ (Lam x e)  : S -> T              Γ ⊢ (Call e1 e2) : T
+
+
+Pairs:  (writing * for the product symbol)
+
+(1, True)     (2, 3, 4)   (5, "asdf", False)
+                                                  ––––––––––––––––tfalse  ––––––––––– intIntro
+  Γ ⊢ e1 : S1       Γ ⊢ e2 : S2                   Ø ⊢ False : bool        Ø ⊢ 5 : int
+  ––––––––––––––––––––––––––––– *Intro            ––––––––––––––––––––––––––––––––––––– *Intro
+    Γ ⊢ (Pair e1 e2) : (S1 * S2)                  Ø ⊢ (Pair False 5) : (bool * int)
+        (e1, e2)     : (S1, S2)
+
+  Γ ⊢ e : (S1 * S2)            Γ ⊢ e : (S1 * S2)           
+  –––––––––––––––––– *Elim1    –––––––––––––––––– *Elim2    ∧Elim2
+  Γ ⊢ (Proj1 e) : S1           Γ ⊢ (Proj2 e) : S2
+      π1                            π2 
+      fst                           snd
+
+             see above
+  Ø ⊢ (Pair False 5) : (bool * int)
+  –––––––––––––––––––––––––––––––––––– *Elim1
+  Ø ⊢ (Proj1 (Pair False 5)) : bool
+
+  (Proj1 (Pair False 5)) |->R False
+
+  (Proj2 (Pair False 5)) |->R 5
+
+  x : (bool * int) ∈ Ø, x : (bool * int)
+  –––––––––––––––––––––––––––––––––––––– type-assum
+  Ø, x : (bool * int) ⊢ x : (bool * int)
+  ––––––––––––––––––––––––––––––––––––––––– *Elim2
+  Ø, x : (bool * int) ⊢ (Proj2 x) : int                 
+
+
+TYPING RULES FOR + TYPES:
+
+  Γ ⊢ e : S1                        Γ ⊢ e : S2
+  –––––––––––––––––––––– +Intro1    –––––––––––––––––––––– +Intro2
+  Γ ⊢ (Inj1 e) : S1 + S2            Γ ⊢ (Inj2 e) : S1 + S2
+
+   Γ ⊢ e : S1 + S2     Γ, x1 : S1 ⊢ e1 : T        Γ, x2 : S2 ⊢ e2 : T
+   –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––– +Elim
+           Γ ⊢ (Case e (x1 => e1      ) (x2 => e2)) : T
+
+
+
+
+
+
+            x[A true]   y[B true]                        
+               .           .                             
+               .           .                              
+A ∨ B true   C true     C true   Γ ⊢ A ∨ B true   Γ, x[A true] ⊢ C true   Γ, y[B true] ⊢ C true
+––––––––––––––––––––––––––––––   –––––––––––––––––––––––––––––––––––––––––––––––––––––––––∨Elim
+              C true                                 Γ ⊢ C true
+
+               (Case z (x1 => (+ x1 1)) (x2 => 0 ))
+               case e of Inj1 x1 -> e1
+                         Inj2 x2 -> e2
+
+   (Case (Inj1 v1) (x1 => e1) (x2 => e2)) |->R [v1/x1]e1   subst. v1 for x1 in e1
+   
+   (Case (Inj2 v2) (x1 => e1) (x2 => e2)) |->R [v2/x2]e2   subst. v2 for x2 in e2
+
+  data Either S1 S2 =              int + bool =
+       Inj1 S1                         Inj1 int
+     | Inj2 S2                       | Inj2 bool
+
+  ––––––––––––––– type-true
+  Ø ⊢ True : bool
+  ––––––––––––––––––––––––––––––––––––––––––––––– +Intro1
+  Ø ⊢ (Inj1 True) : bool + ((int * bool) -> bool)
+
+  –––––––––––––––––––––––––––––– type-false
+  Ø, x : int*bool ⊢ False : bool
+  –––––––––––––––––––––––––––––––––––––––––– ->Intro
+  Ø ⊢ (Lam x False) : ((int * bool) -> bool)
+  –––––––––––––––––––––––––––––––––––––––––––––––––––––––– +Intro2
+  Ø ⊢ (Inj2 (Lam x False)) : bool + ((int * bool) -> bool)
+
+   x : int * bool ∈  Ø, x : int*bool
+  –––––––––––––––––––––––––––––––––– type-assum
+  Ø, x : int*bool ⊢ x : int * bool
+  –––––––––––––––––––––––––––––––––– *Elim2
+  Ø, x : int*bool ⊢ (Proj2 x) : bool
+  –––––––––––––––––––––––––––––––––––––––––– ->Intro
+  Ø ⊢ (Lam x (Proj2 x)) : ((int * bool) -> bool)
+  –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––– +Intro2
+  Ø ⊢ (Inj2 (Lam x (Proj2 x))) : bool + ((int * bool) -> bool)
+
+   bool + ((int * bool) -> bool)
+           /      \
+       bool        ((int * bool) -> bool)
+
+                        ... type-add                           –––––––––––––––– type-false
+                  Ø ⊢ (+ 1 2) : int                            Ø ⊢ False : bool
+     ...          ––––––––––––––––––––––––––––––––– +Intro1 ––––––––––––––––––––––––––– +Intro2
+  Ø ⊢ True : bool   Ø ⊢ (Inj1 (+ 1 2)) : int + bool         Ø ⊢ (Inj2 False) : int+bool
+  ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––– type-ite
+   Ø ⊢ (Ite True (Inj1 (+ 1 2)) (Inj2 False)) : int + bool
+
+T = S1 + S2
+S1 = int
+S2 = bool
+
+S1 = int
+S2 = bool
+T = int  (?)                          ... type-assum             –––––––––––––––––––– intIntro
+   (z : int + bool) ∈ Γz              Γz, x1:int ⊢ x1 : int      Γz, x1:int ⊢ 1 : int
+   ––––––––––––––––––––– type-assum   ––––––––––––––––––––––––––––––––––––––––––––––– type-add
+   Γz ⊢ z : int + bool                 Γz, x1:int ⊢ (+ x1 1) : int                 premise3
+   –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+   Γz ⊢ (Case z (x1 => (+ x1 1)) (x2 => 0)) : int
+                  (Case z (Inj1 x1 => (+ x1 1)) (Inj2 x2 => 0))
+
+
+                   ––––––––––––––––––––––––––– intIntro
+      premise3       Γz, x2 : bool ⊢ 0 : int
+                            (Case z (x1 => (+ x1 1)) (x2 => (Ite x2 -2 -1)))
+Γz = Ø, z : int + bool
+
+   return x1+1 if z is (Inj1 x1)
+   return 0    if z is (Inj2 ...)
+
+   In 360, could try to pattern-match (Haskell)
+
+   myfunction (Inj1 k) = k + 1
+   myfunction (Inj2 q) = 0
+   
+   myfunction z = case z of
+                    Inj1 k -> k + 1
+                    Inj2 q -> 0
+                    k and q are pattern variables
+
+   Either s1 s2 =
+      Left s1
+    | Right s2
+
+   If Ø ⊢ v : int + bool  then either  v = (Inj1 n)  or  (Inj2 q)  where Ø ⊢ q : bool
+   int is not a subtype of int + bool
+   Cat is a subtype of Animal
+   
+
+
+(Case (Inj1 5) (x1 => (+ x1 1)) (x2 => 0)) |->R [5/x1](+ x1 1)
+                                              = (+ 5 1)
+(Case (Inj1 5) (x1 => (+ x1 1)) (x2 => 0)) |->R (+ 5 1)
+
+(Case (Inj2 False) (x1 => (+ x1 1)) (x2 => 0)) |->R [False/x2]0  =  0
+
+Ø ⊢ (Case (Inj1 5) (x1 => (+ x1 1)) (x2 => 0)) : int    (exercise, reuse the derivation I did)
+Ø ⊢ (+ 5 1) : int
+Ø ⊢ 6 : int
+
+ (+ 5 1) |->R 6
+
+Type preservation:
+   For all e, e' and S, if Ø ⊢ e : S and e |-> e' then Ø ⊢ e' : S
+
+Progress:
+   For all e and S, if Ø ⊢ e : S then either (1) e is a value
+                                      or     (2) there exists e' such that e |-> e'
+   (Ite 5 False True) |/
+   (Ite True eThen eElse) |->R eThen
+   (Ite False eThen eElse) |->R eElse
+
+   (Lam x (+ x 1)) |->//
+
+   (Call (Lam x (+ x 1)) 5) |->R (+ 5 1)
+
+
+C ::= []
+    | ...
+    | (Pair C e) | (Pair v C)
+    | (Proj1 C)
+    | (Proj2 C)
+
+Type preservation:
+   For all e, e' and S, if D derives Ø ⊢ e : S and e |-> e' then Ø ⊢ e' : S
+
+By induction on the derivation D of ∅ ⊢ e : S.
+
+IH: For all e0, e0' and S0, 
+      if  D0 < D              (or "D0 is a proper subderivation of D")
+          D0 derives Ø ⊢ e0 : S0 and e0 |-> e0' then Ø ⊢ e0' : S0
+
+1. Rename everything  --done?
+
+2. Add a condition that the thing we're inducting on is smaller
+
+
+Proof:
+Consider cases of the rule concluding D.
+
+  type-false:     
+                  –––––––––––––––– type-false
+                  Γ ⊢ False : bool
+    
+                  Ø ⊢ e     : S
+
+       e = False         By inversion
+       S = bool          "
+       Γ = Ø             "
+       e |-> e'          Given
+   False |-> e'          By above equation
+
+    e1  |->R  e1'
+  ––––––––––––––––– step-context
+  C[e1] |-> C[e1']
+  False |-> e'
+  C[e1]  = False
+  C[e1'] = e'
+  C[e1] = False
+      C = []
+  [][e1] = False
+     e1 = False
+
+     e1  |->R  e1'   By inversion
+  False  |->R  e1'   By above equation
+      However, no rule can derive  False |->R  e1',  so this case is impossible.
+
+  Want: Ø ⊢ e' : S
+        Ø ⊢ e' : bool
+
+
+  *Elim1:
+  D1 derives     Γ ⊢ e1 : S * S2
+               –––––––––––––––––––– *Elim1
+D derives       Γ ⊢ (Proj1 e1) : S
+ 
+       Given:
+       Ø ⊢ e          : S
+
+       e = (Proj1 e1)    By inversion
+       Γ = Ø             "
+       Γ ⊢ e1 : S * S2   "
+
+       e   |-> e'          Given
+(Proj1 e1) |-> e'          By above equation
+
+       e7 |->R e7'
+––––––––––––––––––––––––– step-context
+    C[e7] |-> C[e7']
+(Proj1 e1) |-> e'
+(Proj1 e1) = C[e7]     
+        e' = C[e7']
+
+Consider cases of C:
+FIRST CASE:  C = []
+
+        e = (Proj1 (Pair 10 20))
+
+
+        –––––––––––––––––––––––––––– red-proj1
+        (Proj1 (Pair v1 v2)) |->R v1
+
+        (Proj1 (Pair 10 20)) |->R 10
+       ––––––––––––––––––––––––––––– step-context
+        (Proj1 (Pair 10 20)) |-> 10
+
+       (Proj1 (Pair 10 20)) = C9[(Proj1 (Pair 10 20))]
+                         C9 = []
+                         
+       e7 = (Proj1 e1)
+   (Proj1 e1) |->R e7'
+(Proj1 (Pair v1 v2)) |->R v1
+   e1 = (Pair v1 v2)   By inversion
+  e7' = v1             "
+C[e7'] = e'
+  e7' = e'
+   e' = v1
+
+   Ø ⊢ (Pair v1 v2) : S * S2   By above equation
+   [Use a lemma, "Value Inversion", that's on a3]
+   Ø ⊢ v1 : S            By that lemma
+   Ø ⊢ v2 : S2           "
+   Ø ⊢ e' : S            By above equation
+
+SECOND CASE:  C = (Proj1 C1)
+       e8 |->R e8'
+    ––––––––––––––––– step-context
+    C[e8] |-> C[e8']
+
+  (Proj1 C1)[e8] = (Proj1 e1)
+= Proj1 (C1[e8])
+
+   Ø ⊢ (Proj1 e1) : S         Above
+   e |-> e'                   Given
+   (Proj1 e1) |-> e'
+   Ø ⊢ e1 : S * S2            (By inversion)
+   (Proj1 e1) = C[e8]
+           e' = C[e8']
+           e' = (Proj1 C1)[e8']
+              = (Proj1 C1[e8'])
+          e8 |->R e8'
+   (Proj1 e1) = (Proj1 C1)[e8]
+              = (Proj1 C1[e8])
+           e1 = C1[e8]
+        Ø ⊢ e1 : S * S2       By inversion
+            e1 |-> C1[e8']
+            e8 |->R e8'       Above
+        C1[e8] |-> C1[e8']    By step-context
+        Ø ⊢ C1[e8'] : S * S2        By IH
+        Ø ⊢ (Proj1 C1[e8']) : S     By *Elim1
+        Ø ⊢ e' : S               By above eqn.
+
+
+    EXAMPLE of the C = [] case:
+    (Proj1 (Pair 11 22)) |->R 11
+    ––––––––––––––––––––––––––––
+    (Proj1 (Pair 11 22)) |-> 11
+
+          ––––––––––––––––––––––––––––––
+          (Call (Lam x e) v) |->R [v/x]e
+
+    (Call (Lam x x) (Pair 33 44)) |->R [(Pair 33 44)/x]x
+                                       = (Pair 33 44)
+
+    (Call (Lam x x) (Pair 33 44)) |->R (Pair 33 44)
+    ––––––––––––––––––––––––––––––––––––––––––––––– step-context
+    (Call (Lam x x) (Pair 33 44)) |-> (Pair 33 44)
+
+               e0  |-> e0'
+            ––––––––––––––––––
+            C0[e0] |-> C0[e0']
+    
+    EXAMPLE of the C = (Proj1 C1) case:
+           (Call (Lam x x) (Pair 33 44)) |->R (Pair 33 44)
+    ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+    (Proj1 (Call (Lam x x) (Pair 33 44))) |-> (Proj1 (Pair 33 44))
+    C = (Proj1 C1)
+        C[     (Call (Lam x x) (Pair 33 44))]
+      = (Proj1 C1[ (Call (Lam x x) (Pair 33 44))])
+      = (Proj1 [][ (Call (Lam x x) (Pair 33 44))])
+      = (Proj1 (Call (Lam x x) (Pair 33 44)))
+
+C1 = []
+
+          Proj1                     Proj1       
+            |                         |
+          Call           |->         Pair
+         /    \                      /  \
+       Lam     Pair                33    44
+      /   \     / \
+     x     x   33  44
+
+       C = Proj1                   Proj1
+             |                       |
+            C1                      []     
+
+     (Proj1 (Pair 33 44)) |-> 33    C = []
+
+      C = Proj1 C1
+              Proj1
+                |
+
+              Call
+             /    \
+          Lam     Pair
+         /   \    /  \
+        x     x  33  44
+
+
+e = (< e1 e2)
+(< 10 3) |->R False
+–––––––––––––––––––– step-context
+(< 10 3) |-> False
+C = []
+
+e = (< (+ 9 1) 3)
+      (+ 9 1) |->R 10
+––––––––––––––––––––––––––
+(< (+ 9 1) 3) |-> (< 10 3)
+C = (< [] 3)
+       <             <
+      / \    |->    / \
+     +   3        10   3
+    / \
+   9   1
+
+e = (< 10 (+ 1 2))
+      (+ 1 2)  |->R 3
+–––––––––––––––––––––––––––
+(< 10 (+ 1 2)) |-> (< 10 3)
+      <               <
+     / \             / \
+    10  +    |->    10  3
+       / \
+      1   2
+C = (< 10 [])
+

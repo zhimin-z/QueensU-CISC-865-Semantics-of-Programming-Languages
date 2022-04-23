@@ -1,0 +1,219 @@
+465/865 Friday 2022-02-04
+Jana Dunfield
+Please mute your microphone when not speaking
+This lecture is recorded until about the 50-minute mark
+
+
+Still on lec5-7.pdf
+Natural deduction:
+
+atomic formulas   P, Q
+                  (we also use   "a > 0", etc.
+variables         a, b
+                  )
+formulas          A, B, C ::= P           atomic formula
+                            | A ⊃ B       implication  (A → B)  "if A then B"
+			    | A ∧ B       conjunction (and)   "∧" "/\" And
+			    | A ∨ B       disjunction (or)   "vel" = "or"
+			    | ∀a:nat. A   universal quantification (for all a)
+                            | ∃a:nat. A   existential quantification (there exists a)
+                            | True        truth (always true)
+
++--------+
+| A true | formula A is true
++--------+
+
+Today, 9 rules:
+ 
+  A true     B true            
+  ––––––––––––––––– ∧Intro 
+     (A ∧ B) true	   
+
+  A ∧ B true  	       A ∧ B true  	    
+  –––––––––– ∧Elim1    –––––––––– ∧Elim2 
+    A true               B true          
+
+[This does not make sense:
+  A ∧ B true
+  –––––––––– ∧Elim3
+    C true
+]
+
+       x[A true] 
+        .
+        .
+        .                  
+       B true             x
+  ––––––––––––––––– ⊃Intro 
+    (A ⊃ B) true           
+
+  A true        A ⊃ B true		 
+  A ⊃ B true    A true		 
+  –––––––––––––––––––– ⊃Elim	 
+         B true        
+
+True:
+
+  ——————————— TrueIntro
+   True true
+
+A ∧ B  is conjunction: two things, A and B, are true
+       everything in the set {A, B} is true
+
+If we had something like  ∧(A, B, C)  it would mean
+    everything in the set {A, B, C} is true
+    A ∧ (B ∧ (C ∧ True))
+    C ∧ ⊤ ≡ C
+    C ∧ True  C
+What is a conjunction of {}?
+ • it's True 
+
+associate True with 0
+associate ∧ with 2
+
+   –––––––––– TrueIntro
+   True true
+
+   No elimination rule (TrueElim) for True
+
+["True" is another symbol for "⊤" as used in e.g. CISC 204]
+["False" will be another symbol for "⊥" as used in e.g. CISC 204]
+
+Or:
+
+In 204, we had things like
+  C ∧ True  ≡ C
+  C ∧ False ≡ False
+
+  C ∨ True ≡ True
+
+  C ∨ True  ≡ True
+  C ∨ False ≡ C
+
+
+    A true              B true
+  –––––––––– ∨Intro1   –––––––––– ∨Intro2
+  A ∨ B true           A ∨ B true	      (∨i1, ∨i2 in CISC 204)
+
+                   x[A true]    y[B true]
+                      .             .
+                      .             .
+                      .             .
+  A ∨ B true        C true       C true
+  –––––––––––––––––––––––––––––––––––––– ∨Elim
+                 C true
+
+  n is an integer
+  
+  Either (n = 0) or (n ≠ 0).
+  (n = 0) ∨ (n ≠ 0)
+
+  • n = 0
+      ...
+      2n is an integer         =  "C"
+
+  • n ≠ 0
+      ...
+      2n is an integer
+
+  Therefore, 2n is an integer.
+
+assumptions labelled x, y, z
+plus use of assumption: for example,
+to use an assumption y[B ∧ C true], write
+
+    –––––––––– y
+    B ∧ C true
+
+
+• Local soundness:
+
+  For every elimination rule for a connective,
+    check that its conclusion went into the introduction rule.
+
+
+  Anything you get out (using elimination rules) you put in (using introduction rules).
+ 
+  To check local soundness, look at all the elimination rules.
+
+ First elimination rule for ∧:
+
+  A ∧ B true  	   
+  –––––––––– ∧Elim1
+    A true         
+
+  A true     B true            
+  ––––––––––––––––– ∧Intro 
+     (A ∧ B) true
+     –––––––––––– ∧Elim1
+        A true
+  Have A true already, so ∧Elim1 is locally sound
+
+
+ Second elimination rule for ∧:
+
+  A ∧ B true
+  –––––––––– ∧Elim2
+    B true 
+
+  A true     B true            
+  ––––––––––––––––– ∧Intro 
+     (A ∧ B) true
+     –––––––––––– ∧Elim2
+        B true
+
+  Have B true already, so ∧Elim2 is locally sound
+
+  Therefore, ∧ is locally sound.
+
+  [ ∧Elim3:
+
+  A true     B true            
+  ––––––––––––––––– ∧Intro 
+     (A ∧ B) true
+     –––––––––––– ∧Elim3
+        C true
+
+  I didn't put C true in. (unless C = A or C = B)
+  Then local soundness of ∧ fails.]
+  Local soundness fails ≈ too many elimination rules / wrong
+                           elimination rules
+
+• Local completeness:
+
+[Restructure to align better with lec5-7 6.6 Local compl. for ∨]
+  Assume we used an introduction rule for the connective.
+  For each premise of the introduction rule,
+    check that there exists an elimination rule
+      that derives the premise of the introduction rule.
+
+  If we put something into the connective using an
+  introduction rule, then we can get it out using an
+  elimination rule.
+  Local completeness fails ≈ not enough elimination rules
+
+  Local completeness for ∧:
+
+  • For every introduction rule for ∧:
+
+    • Look at everything that went into the intro rule:
+
+      A true     B true            
+      ––––––––––––––––– ∧Intro 
+          (A ∧ B) true
+
+      1. A true
+
+         Can we get A true out?  Yes, using ∧Elim1.
+
+      2. B true
+
+         Can we get B true out?  Yes, using ∧Elim2.
+      
+  Local completeness holds for ∧.
+
+  [Momentarily removed ∧Elim2.
+   Then "2. B true" fails.
+  ]
+
+

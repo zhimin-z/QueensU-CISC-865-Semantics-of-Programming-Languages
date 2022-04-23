@@ -1,0 +1,389 @@
+\synctex=1
+
+\gdef\lecturenumber{a1}
+\gdef\subsectioncounters{1}
+\input preamble.tex
+
+
+\begin{document}
+\date{due: Thursday, 2022--07--09, 11:59 pm}
+\Chapter{\vspace*{-2ex}Assignment 1}
+
+~\\[-7ex]
+
+{\noindent You} may \textbf{not} work in a group on this assignment.
+
+\medskip
+
+{\noindent ID number(s)}: 20311734\\[1ex]
+{\noindent Name(s)}: Zhimin Zhao
+
+\vspace*{1ex}
+
+\section{Grammars}
+
+Suppose we have the following grammar.
+
+\begin{grammar}
+  integers
+  &
+  $n$
+  &$\in \mathbb{Z}$
+\\
+  variables
+  &
+  $x$, $y$, $z$
+\\
+  systems
+  &
+  $s$ 
+  &\bnfas&
+  $
+  \keyword{start}~z~\keyword{in}~s
+  \bnfaltBRK
+  \keyword{stop}
+  \bnfaltBRK
+  \keyword{get}~y~z
+  \bnfaltBRK
+  \keyword{set}~x~\keyword{to}~y
+  \bnfaltBRK
+  s~;~s
+  $
+\end{grammar}
+
+\textbf{Part (a).} According to the above grammar, which of the following strings can be produced from the
+nonterminal (meta-variable) $s$?  
+
+\begin{minipage}[t]{0.47\linewidth}
+\begin{enumerate}
+\item $\keyword{stop}~;~\keyword{stop}~;~\keyword{stop}$
+\item $\keyword{set}~x, y~\keyword{to}~z~;~\keyword{get}~z~x~;~\keyword{stop}$
+\item $\keyword{get}~5~z$
+\end{enumerate}
+\end{minipage}
+~
+\begin{minipage}[t]{0.47\linewidth}
+\begin{enumerate}
+  \setcounter{enumi}{3}
+\item $\keyword{start}~y~\keyword{in}~\keyword{get}~z~\keyword{stop}$
+\item $\keyword{start}~z~\keyword{in}~\keyword{start}~z~\keyword{in}~\keyword{get}~z~z$
+\item $\keyword{set}~x~\keyword{to}~\keyword{stop}~;~\keyword{get}~x~y$
+\end{enumerate}
+\end{minipage}
+
+\medskip
+
+List their numbers, or put a checkmark next to those that can be produced:
+
+\bigskip
+1,5
+\bigskip
+
+\textbf{Part (b).} 
+Below, I have drawn one of two possible
+parse trees for the system
+\[
+\keyword{start}~z~\keyword{in}~\keyword{set}~y~\keyword{to}~z~;~\keyword{get}~y~x~
+\]
+Draw the \emph{other} possible parse tree.
+\begin{verbatim}
+            start_in_                                       ;
+                 /   \                                  /       \
+                z     ;                            start_in_    get
+                     / \                            /   \       /  \
+               set_to_  get                        z  set_to_  y    x
+               / \      / \                            /   \
+              y  z     y   x                          y     z
+\end{verbatim}
+\clearpage
+
+\textbf{Part (c).}
+Lisp-style syntax, like $\plusexp{1}{\plusexp{2}{3}}$, eliminates the possibility of multiple parse trees
+for the same string.
+Rewrite the above grammar of $s$ to use Lisp-style syntax: every production should look like
+\texttt{(\keyword{word}~$\cdots$)}, where \keyword{word} is unique to that production
+(\eg don't write two productions that both start with \keyword{get})
+and ``$\cdots$'' contains only meta-variables ($n$, $x$, $y$, $z$, $s$).
+
+I have given you the first production; for the last production, my intent was that $s~;~s$
+represents a sequence of systems, so the word \keyword{seq} would be a reasonable choice.
+
+\begin{grammar}
+  integers
+  &
+  $n$
+  &$\in \mathbb{Z}$
+\\
+  variables
+  &
+  $x$, $y$, $z$
+\\
+  systems
+  &
+  $s$ 
+  &\bnfas&
+  $
+  \texttt(\keyword{start}~x~s\texttt)
+  \vspace{1ex}
+  \bnfaltBRK
+% If you are doing your assignment in TeX, enter your solution on a new line after this one.
+  \keyword{stop}
+  \vspace{1ex}
+  \bnfaltBRK
+  \texttt(\keyword{get}~y~z\texttt)
+  \vspace{1ex}
+  \bnfaltBRK
+  \texttt(\keyword{set}~x~y\texttt)
+  \vspace{1ex}
+  \bnfaltBRK
+  \texttt(\keyword{seq}~s~s\texttt)
+  ~~~~
+  $
+\end{grammar}
+
+
+\section{Grammars as inductive definitions}
+
+Following the example at the beginning of lec2 \S4 for arithmetic expressions, 
+write an inductive definition that corresponds to the original grammar of systems
+(\emph{not} your grammar with Lisp-like syntax).
+I have given you the first part.
+
+\textbf{Hint}: The grammar allows the string $\keyword{get}~x~y~;~\keyword{stop}$.
+Make sure that your definition also allows that string.
+
+\begin{enumerate}[(a)]
+\item If $x$ is a variable and $s$ is a system,
+  then $\keyword{start}~x~\keyword{in}~s$
+  is a system.\vspace{-0.6ex}
+\item If $s$ is a system and $s'$ is a system,
+  then $s~;~s'$
+  is a system.\vspace{-0.6ex}
+\item If $x$ is a variable and $y$ is a variable,
+  then $\keyword{get}~x~y$
+  is a system.\vspace{-0.6ex}
+\item If $x$ is a variable and $y$ is a variable,
+  then $\keyword{set}~x~\keyword{to}~y$
+  is a system.\vspace{-0.6ex}
+\item $\keyword{stop}$ is a system.
+\vspace{6ex}
+\end{enumerate}
+\vspace{6ex}
+
+
+
+Now, for the Lisp-style grammar, write the part of the inductive definition that
+corresponds to the first production, $\texttt(\keyword{start}~x~s\texttt)$.
+
+\begin{enumerate}[(a)]
+\item If $x$ is a variable and $s$ is a system, then $\texttt{(}\keyword{start}~x~s\texttt{)}$ is a system.
+\end{enumerate}
+ \vspace{6ex}
+
+
+\clearpage
+\section{``In logic, there are no morals.''}
+\newcommand{\downodd}{\down_\textsf{\upshape\selectfont odd}}
+\newcommand{\odddown}{\mathrel{{}_\textsf{\upshape\selectfont odd}{\down}}} %_\textsf{\upshape\selectfont0}
+
+Recognizing when things are wrong is just as important as recognizing when
+things are right.
+
+We define a judgment, $e \downodd n$, that resembles our big-step semantics
+but ``likes odd numbers''.
+
+\medskip
+\judgbox{e \downodd n}{expression $e$ evaluates to $n$, but likes odd numbers}
+\vspace*{-1.2ex}
+    \begin{mathpar}
+      \Infer{evalodd-const}
+          {}
+          {n \downodd 7}
+      \and
+      \Infer{evalodd-add}
+          {
+            e_1 \downodd n_1
+            \\
+            e_2 \downodd n_2
+          }
+          {\plusexp{e_1}{e_2} \downodd 2n_1 + 2n_2 + 1}
+    \end{mathpar}
+
+Prove the following conjecture.  You may choose whether to induct on the expression
+or the derivation, and whether to do case analysis on the expression or the derivation;
+for this proof, either approach can work.
+
+\textbf{After ``By structural induction on'', state what you are inducting on.}
+
+\textbf{After ``Induction hypothesis:'', write the appropriate induction hypothesis.}
+
+You will need to ``case-split'' on something.
+\textbf{After ``Consider cases of :'', write what you are considering cases of}
+(for example: the form of the expression $e$, or the rule concluding $\Dee$,
+or something else of your choosing).
+
+Write out every step in detail.  Use additional pages if necessary.
+
+\subsection*{Proof of ``Always odd''}
+
+\begin{conjecture}[Always odd] ~\\
+  For all expressions $e$ and derivations $\Dee$ such that $\Dee$ derives $e \downodd n$,\\
+  there exists $m \in \mathbb{Z}$ such that $n = 2m + 1$.
+\end{conjecture}
+\begin{proof}
+  By structural induction on $e$
+  \vspace{1ex} 
+  \\
+  \textbf{Induction hypothesis}:
+  For all expressions $e'\prec{e}$ and derivations $\Dee'$ such that $\Dee'$ derives $e'~\downodd~n$, there exists $m\in\mathbb{Z}$ such that $n = 2m + 1$.
+  \vspace{2ex}
+
+  Consider cases of $e$
+
+  \begin{itemize}
+  \item Case: $e = n$.\\
+  $n = 7$\hspace{10mm}By inversion\\
+  $n = 2*3 + 1$\hspace{10mm}By arithmetic\\
+  Let $m = 3$.\\
+  $n = 2m + 1$\\
+  
+  \item Case: $e = \plusexp{e_1}{e_2}$.\\
+  For all expressions $e_1, e_2\prec{e}$ and derivations $\Dee_1$, $\Dee_2$ such that $\Dee_1$ derives $e_1~\downodd~n_1$, $\Dee_2$ derives $e_2~\downodd~n_2$, there exists $m_1, m_2\in\mathbb{Z}$ such that $n_1 = 2m_1 + 1$, $n_2 = 2m_2 + 1$.\\
+  $\plusexp{e_1}{e_2}\downodd 2n_1+2n_2+1$\hspace{10mm}By evalodd-add\\
+  $n = 2n_1+2n_2+1$\hspace{10mm}By inversion\\
+  Let $m = n_1 + n_2$.\\
+  $n = 2m + 1$\\
+  \end{itemize}
+    \vfill
+\end{proof}
+
+\subsection*{Soundness and completeness}
+
+Now consider yet another judgment, which also likes odd numbers:
+to evaluate an integer expression, it must be odd.
+
+\medskip
+\judgbox{e \odddown v}{expression $e$ evaluates to value $v$, but only works for odd numbers}
+    \begin{mathpar}
+      \Infer{oddeval-const}
+          {}
+          {2n + 1 \odddown 2n + 1}
+      \and
+      \Infer{oddeval-add}
+          {
+            e_1 \odddown n_1
+            \\
+            e_2 \odddown n_2
+          }
+          {\plusexp{e_1}{e_2} \odddown n_1 + n_2}
+    \end{mathpar}
+
+We now have three different definitions of big-step evaluation: the ``real'' definition $e \down v$,
+and two ``joke'' definitions, $e \downodd v$ and $e \odddown v$.
+Let's compare these definitions in the framework of soundness and completeness.
+Since we have (I hope) some faith in the validity of $e \down v$, we will consider that
+to be our ``ground truth'', and compare the joke definitions with respect to $e \down v$.  We repeat those rules here:
+
+\medskip
+\judgbox{e \down v}{expression $e$ evaluates to value $v$}
+\vspace*{-1.2ex}
+    \begin{mathpar}
+      \Infer{eval-const}
+          {}
+          {n \down n}
+      \and
+      \Infer{eval-add}
+          {
+            e_1 \down n_1
+            \\
+            e_2 \down n_2
+          }
+          {\plusexp{e_1}{e_2} \down n_1 + n_2}
+    \end{mathpar}
+
+Each of the following questions asks you to either state \emph{and prove} the appropriate theorem, or give a counterexample.
+
+
+\begin{enumerate}[(a)]
+\item Is the theory $e \downodd v$ sound with respect to $e \down v$?
+
+  If it is sound, state \emph{and prove} the appropriate theorem.
+
+  \checkmark If it is not sound, give a counterexample ($e$ and $v$ such that
+  $e \downodd v$ is derivable, but $e \down v$ is not derivable).
+  
+  Let $e=10$.
+  
+  \begin{llproof}
+  \Pf{}{}{e\downodd 7}{By evalodd-const}
+  \Pf{}{}{e\down 10}{By eval-const}
+  \Pf{}{}{7\neq 10}{By arithmetic}
+  \end{llproof}
+  
+  Thus it is not sound.
+
+\item Is the theory $e \downodd v$ complete with respect to $e \down v$?
+
+  If it is complete, state \emph{and prove} the appropriate theorem.
+
+  \checkmark If it is not complete, give a counterexample ($e$ and $v$ such that
+  $e \down v$ is derivable, but $e \downodd v$ is not derivable).
+  
+  Let $e=10$.
+  
+  \begin{llproof}
+  \Pf{}{}{e\down 10}{By eval-const}
+  \Pf{}{}{e\downodd 7}{By evalodd-const}
+  \Pf{}{}{10\neq 7}{By arithmetic}
+  \end{llproof}
+  
+  Thus it is not sound.
+
+\item Is the theory $e \odddown v$ sound with respect to $e \down v$?
+
+  \checkmark If it is sound, state \emph{and prove} the appropriate theorem.
+
+  If it is not sound, give a counterexample ($e$ and $v$ such that
+  $e \odddown v$ is derivable, but $e \down v$ is not derivable).
+  
+  \textbf{Problem Statement}: Theory $e \odddown v$ is sound with respect to $e \down v$
+  
+  \textbf{Proof}: By structural induction on $e$
+  
+  \textbf{Induction hypothesis}: For all $e'\prec{e}$ expressions and derivations $\Dee'$ such that $\Dee'$ derives $e'\odddown v'$, then $e'\down v'$.
+  \vspace{2ex}
+  
+  Consider cases of $e$
+  \begin{enumerate}
+  \item Case: $e = 2n + 1$.\\
+  \begin{llproof}
+  \Pf{}{}{e\odddown 2n + 1}{By oddeval-const}
+  \Pf{}{}{e\down 2n + 1}{By eval-const}
+  \end{llproof}
+  
+  \item Case: $e = \plusexp{e_1}{e_2}$.\\
+  \begin{llproof}
+  \Pf{}{}{e_1\odddown n_1}{By assumption}
+  \Pf{}{}{e_1\down n_1}{By IH}
+  \Pf{}{}{e_2\odddown n_2}{By assumption}
+  \Pf{}{}{e_2\down n_2}{By IH}
+  \Pf{}{}{e\odddown n_1 + n_2}{By oddeval-add}
+  \Pf{}{}{e\down n_1 + n_2}{By eval-add}
+  \end{llproof}
+  \end{enumerate}
+\end{enumerate}
+
+A counterexample fits on a line, and a proof doesn't, so I can't give you an appropriate
+amount of space without giving away parts of the answers.
+Therefore, please write your answers on the next page.
+
+If you need to write one or more proofs, I suggest following the
+language of Conjecture 3.1: ``For all \dots, \dots'' and the form of that proof:
+say what you are inducting on, state the induction hypothesis, and give all necessary
+detail.
+
+\end{document}
+
+% Local Variables:
+% TeX-master: "a1"
+% End:

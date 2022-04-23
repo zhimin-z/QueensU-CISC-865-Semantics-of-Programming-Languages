@@ -1,0 +1,642 @@
+\synctex=1
+
+\gdef\lecturenumber{Midterm}
+\gdef\subsectioncounters{1}
+\input preamble.tex
+\usepackage{etoolbox}
+
+\newcommand{\blanks}[1]{\ensuremath{\dashuline{\hspace{#1}}}}
+
+
+\begin{document}
+\date{Friday, 2022--03--04, 12:30 p.m. to Saturday, 2022--03--05, 12:30 p.m.}
+
+
+\Chapter{\vspace*{-4ex}CISC 465 take-home midterm}
+
+There is a 24-hour grace period, so the actual deadline is \textbf{Sunday} at 12:30 p.m.
+
+\bigskip
+
+\textbf{Student ID number:}  \uline{\hspace*{0.7\textwidth}}
+
+\medskip
+
+Please note: You must \textbf{NOT} work in a group on the midterm.
+
+
+\section*{Total points: 60}
+
+\section{Q1: Grammars, Inductive Definitions and Induction (15 points)}
+
+Consider the following grammar:
+
+\newcommand{\lcabs}[2]{\texttt(\lambda{#1}.\;{#2}\texttt)}
+\newcommand{\lcapp}[2]{{#1}\texttt(#2\texttt)}
+
+\begin{grammar}
+integers & $n$ &
+\\
+variables & $x, y, z$ &
+\\
+terms  & $M, N$ &\bnfas&
+      $x
+      \bnfaltBRKn{}
+      n
+      \bnfaltBRKn{}
+      \lcabs{x}{N}
+      \bnfaltBRKn{}
+      \lcapp{M}{M}
+      \BRKn{}
+      $
+\end{grammar}
+
+\textbf{Question 1(a).} This grammar corresponds to an inductive definition.  Fill in the missing parts of the definition.
+
+\begin{enumerate}
+\item If $x$ is a variable then $x$ is a term.
+
+\item
+~\\[5ex]
+
+\item
+~\\[5ex]
+
+\item
+~\\[5ex]
+
+\end{enumerate}
+
+\textbf{Question 1(b).} For each string of symbols on the left, determine whether it is, or is not, a term (according to the above grammar).
+
+\medskip
+
+\begin{tabular}{rcll}
+&  $\texttt(\lambda x.\;z\texttt)$ &  is a term~~~~~is not a term
+\\[1ex]
+&  $\texttt(\lambda y, y.\;y\texttt)$ & is a term~~~~~is not a term
+\\[1ex]
+&  $\texttt(\lambda x.\;x\texttt(3\texttt)\texttt)$ &  is a term~~~~~is not a term
+\\[1ex]
+&  $3\texttt(x\texttt)$ & is a term~~~~~is not a term
+\end{tabular}
+
+\clearpage
+
+A term \emph{mentions} a variable if that variable appears somewhere in the term.
+For example:
+
+\begin{itemize}
+\item  $y$ mentions $y$
+\item  $\lcabs{x}{y}$ mentions $x$ and $y$
+\item  $\lcabs{z}{z}$ mentions $z$
+\item  $\lcabs{x}{1}$ mentions $x$
+\end{itemize}
+
+
+\textbf{Question 1(c).}
+For the following conjecture, write the induction hypothesis and the appropriate set
+of cases to consider.  You do \textbf{not} need to complete any of the cases (as it happens, the conjecture is false).
+
+\begin{conjecture*}
+  For every term $M$, there exists a variable $x$ such that $M$ mentions $x$.
+\end{conjecture*}
+\begin{proof}
+  By structural induction on $M$.
+
+  \medskip
+
+  \textbf{Induction hypothesis}:
+
+  \vspace*{10ex}
+
+
+  Consider cases of $M$.
+
+  \begin{itemize}
+  \item Case
+
+
+
+  \vspace*{33ex}
+  \end{itemize}
+\end{proof}
+
+
+
+
+
+\clearpage
+
+
+\section{Q2: Natural deduction and sequent calculus (20 points)}
+
+In this question, we consider simplified versions of natural deduction
+(lectures 5 through 8) and sequent calculus (lecture 9).
+
+\begin{grammar}
+  atomic formulas
+  &
+  $P, Q$
+  \\
+  formulas
+  &
+  $A, B, C$
+  &\bnfas&
+  $P
+  \bnfaltBRKn{atomic formula}
+  A \imp B
+  \bnfaltBRKn{implication}
+  A \AND B
+  \BRKn{conjunction (and)}
+  $
+  \\[1ex]
+  contexts (in sequent calculus)
+  &
+  $\Gamma$
+  &\bnfas&
+  $\emptyctx \bnfaltBRKn{empty context (no assumptions)}
+  \Gamma, \xNDassume{x}{A \True}
+  \BRKn{assumption that $A$ is true}
+  $
+\end{grammar}
+
+The questions in this section involve both natural deduction
+and sequent calculus rules.  To distinguish them, we prefix the
+natural deduction rules with ``nat'' and the sequent calculus rules
+with ``seq''.  For example, the rule called $\imp$Elim in lec5-7
+is called nat-$\imp$Elim here, and the rule called $\imp$Elim in lec9
+is called seq-$\imp$Elim here.
+
+\bigskip
+
+\judgbox{A \True}{$A$ is true (in natural deduction)}
+  \vspace*{-1ex}
+\begin{mathpar}
+  \Infer{nat-$\imp$Intro\noteassume{\fighi{x}}}
+       {
+         \NDassume{\fighi{x}}{A \True}{
+           B \True
+         }
+       }
+       {(A \imp B) \True}
+  \and
+  \Infer{nat-$\imp$Elim}
+       {
+         A \imp B \True
+         \\
+         A \True
+       }
+       {B \True}
+  \\
+  \Infer{nat-$\AND$Intro}
+       {
+         A \True
+         \\
+         B \True
+       }
+       {A \AND B \True}
+  \and
+  \Infer{nat-$\AND$Elim1}
+       {
+         A \AND B \True
+       }
+       {A \True}
+  ~~~~~
+  \Infer{nat-$\AND$Elim2}
+       {
+         A \AND B \True
+       }
+       {B \True}
+\end{mathpar}
+
+Now, we give the corresponding sequent calculus rules:
+
+\bigskip
+
+\judgbox{\Gamma |- A \True}{Under assumptions $\Gamma$, formula $A$ is true (sequent calculus)}
+  \vspace*{-1ex}
+\begin{mathpar}
+  \Infer{seq-assum}
+       { \xNDassume{x}{A \True} \in \Gamma
+       }
+       {
+         \Gamma |- A \True
+       }
+  \\
+  \Infer{seq-$\imp$Intro}
+       {
+         \Gamma, \xNDassume{x}{A \True}
+         |-
+         B \True
+       }
+       {\Gamma |- (A \imp B) \True}
+  \and
+  \Infer{seq-$\imp$Elim}
+       {
+         \Gamma |- A \imp B \True
+         \\
+         \Gamma |- A \True
+       }
+       {\Gamma |- B \True}
+  \\
+  \Infer{seq-$\AND$Intro}
+       {
+         \Gamma |- A \True
+         \\
+         \Gamma |- B \True
+       }
+       {
+         \Gamma |- 
+         A \AND B \True
+       }
+  \and
+  \Infer{seq-$\AND$Elim1}
+       {
+         \Gamma |- A \AND B \True
+       }
+       {
+         \Gamma |- 
+         A \True
+       }
+  ~~~~~
+  \Infer{seq-$\AND$Elim2}
+       {
+         \Gamma |- A \AND B \True
+       }
+       {
+         \Gamma |- 
+         B \True
+       }
+\end{mathpar}
+
+\clearpage
+
+
+
+\textbf{Question 2(a).}
+Complete the two derivations below.
+
+In the second (sequent calculus) one, you may write
+$\Gamma_{xy}$ instead of
+\[
+    \emptyset, \xNDassume{x}{Q \AND P \True},
+    \xNDassume{y}{Q \True}
+\]
+Hint: When you use seq-assum, its premise should be
+$\xNDassume{x}{Q \AND P \True} \in \Gamma_{xy}$.
+
+\begin{minipage}{0.48\linewidth}
+\vspace{40ex}
+\[
+\Infer{nat-$\imp$Intro\noteassume{\fighi{x}}}
+   {
+   }
+   {(Q \AND P) \imp (Q \imp P) \True}
+\]
+\end{minipage}
+~
+\begin{minipage}{0.48\linewidth}
+\vspace{40ex}
+\[
+\Infer{seq-$\imp$Intro}
+   {
+     \hspace*{33ex}  % remove this line if you're working in TeX
+   }
+   {\emptyctx |- (Q \AND P) \imp (Q \imp P) \True}
+\]
+\end{minipage}
+
+\vfill
+
+Question 2(b), on the next page, involves a proof.
+
+
+
+\clearpage
+
+\textbf{Question 2(b).}
+Complete the seq-$\imp$Elim
+case of the following proof.
+
+\fontsz{10pt}{
+\begin{conjecture}[Soundness of sequent calculus with respect to natural deduction]
+~\\
+  If $\Dee$ derives $\Gamma |- A \True$ then
+  $A \True$ under the assumptions $\Gamma$.
+\end{conjecture}
+\begin{proof}
+  By induction on $\Dee$.
+
+  \textbf{Induction hypothesis:}
+  If $\Dee'$ derives $\Gamma' |- A' \True$ and $\Dee' \prec \Dee$,
+  then $A' \True$ under the assumptions $\Gamma'$.
+
+  Consider cases of the rule concluding $\Dee$.
+
+  \begin{itemize}
+  \item Case: seq-assum
+
+    \begin{llproof}
+      \Pf{}{}{\xNDassume{x}{A \True} \in \Gamma} {By inversion}
+      \Pf{}{}{A \True\text{~~~under assumptions $\Gamma$}} {By assumption $x$}
+    \end{llproof}
+
+  \item Case: seq-$\imp$Intro
+
+    \begin{llproof}
+      \eqPf{A}{A_1 \imp A_2}   {By inversion}
+      \ePf{\Gamma}{A \True}  {Given}
+      \ePf{\Gamma}{(A_1 \imp A_2) \True}  {By above equation}
+      \ePf{\Gamma, \xNDassume{x}{A_1 \True}}{A_2 \True}  {By inversion}
+      \Pf{}{}{A_2 \True\text{~~~under assumptions $\Gamma, \xNDassume{x}{A_1 \True}$}}
+        {By IH}
+      \Pf{}{}{(A_1 \imp A_2) \True\text{~~~under assumptions $\Gamma$}}
+        {By nat-$\imp$Intro\noteassume{x}}
+    \end{llproof}
+
+  \item Case: seq-$\AND$Intro:
+    We should do this case, but let's not.
+    (This means you don't have to do it.)
+
+  \item Case: seq-$\AND$Elim1
+
+    \begin{llproof}
+      \ePf{\Gamma}{A \True}  {Given}
+      \ePf{\Gamma}{A \AND B \True}  {By inversion}
+      \Pf{}{}{A \AND B \True\text{~~~under assumptions $\Gamma$}}
+        {By IH}
+      \Pf{}{}{A \True\text{~~~under assumptions $\Gamma$}}
+        {By nat-$\AND$Elim1}
+    \end{llproof}
+
+  \item Case: seq-$\AND$Elim2
+
+    \begin{llproof}
+      \ePf{\Gamma}{A \True}  {Given}
+      \ePf{\Gamma}{A_1 \AND A \True}  {By inversion}
+      \Pf{}{}{A_1 \AND A \True\text{~~~under assumptions $\Gamma$}}
+        {By IH}
+      \Pf{}{}{A \True\text{~~~under assumptions $\Gamma$}}
+        {By nat-$\AND$Elim2}
+    \end{llproof}
+
+
+  \item Case: seq-$\imp$Elim
+    \textbf{[Complete this case]}
+
+\vfill
+  \end{itemize}
+\end{proof}
+
+
+
+}  % end fontsz
+
+\clearpage
+
+\section{Q3: Choice (25 points)}
+\newcommand{\DC}[2]{\textsf{choose}({#1},\,{#2})}
+
+Consider the language of terms from Q1, extended with
+a \emph{choice operator} $\DC{M_1}{M_2}$, which uses \emph{either} $M_1$ or $M_2$,
+unpredictably.
+The new grammar is:
+
+\begin{grammar}
+integers & $n$ &
+\\
+variables & $x, y, z$ &
+ \\
+values & $v$
+   &\bnfas&
+   $x \bnfalt \lcabs{x}{N}
+   $
+\\
+(Q3) terms  & $M, N$ &\bnfas&
+      $x
+      \bnfaltBRKn{variable}
+      n
+      \bnfaltBRKn{integer}
+      \lcabs{x}{N}
+      \bnfaltBRKn{abstraction}
+      M\texttt(M\texttt)
+      \bnfaltBRKn{application}
+      \DC{M}{M}
+      \BRKn{choice}
+      $
+\end{grammar}
+
+
+The rules for the choice operator are eval-choose1 and eval-choose2.
+The other rules are somewhat similar to those in Lecture 10, with different syntax.
+The rule eval-app corresponds to the rule eval-call in Lecture 10.
+
+\medskip
+
+\judgbox{M \down v}{Term $M$ evaluates to $v$}
+\vspace*{-1.5ex}
+\begin{mathpar}
+  \Infer{eval-value}
+     {}
+     {v \down v}
+  \and
+  \Infer{eval-app}
+     {
+       M_1 \down \lcabs{x}{N}
+       \\
+       M_2 \down v_2
+       \\{}
+       [v_2/x]N \down v
+     }
+     {
+       \lcapp{M_1}{M_2} \down v
+     }
+  \and
+  \Infer{eval-choose1}
+     {M_1 \down v_1}
+     {\DC{M_1}{M_2} \down v_1}
+  \and
+  \Infer{eval-choose2}
+     {M_2 \down v_2}
+     {\DC{M_1}{M_2} \down v_2}
+\end{mathpar}
+
+\vspace*{2ex}
+
+Give a counterexample to the following conjecture:
+
+\begin{conjecture}
+  If $M \down v$ and $N \down v$ then $M = N$.
+\end{conjecture}
+
+Counterexample:
+
+\bigskip
+
+$M =
+$ \bigskip
+
+$N =
+$\bigskip
+
+$v =
+$
+
+\vfill
+
+\textbf{Question 3(b) on next page}
+
+\clearpage
+
+\textbf{Question 3(b).}
+A useful property of (some) programming languages is \emph{type preservation}:
+if a program gives an answer, the answer should have the same type as the program.
+For example, if $\DC{1}{2}$ has type $\Int$, and $\DC{1}{2} \down v$, then
+$v$ should also have type $\Int$.
+
+Giving a complete set of typing rules would take us past the lecture notes covered
+in class so far.  However, this question uses a drastically simplified type system,
+with only two
+types: $\Int$, the type of integers (like $n$), and $\Int -> \Int$, the type of the
+identity function $\lcabs{x}{x}$ (which corresponds to $\lamexp{x}{x}$ in the
+language of lec10.pdf).
+
+\begin{grammar}
+ types & $S, T$
+   &\bnfas&
+   $\Int
+   \bnfalt
+   \Int -> \Int
+   $
+\\[1ex]
+typing contexts & $\Gamma$
+&\bnfas&
+$
+\emptyctx
+\bnfaltBRKn{empty context}
+\Gamma, x : S
+\BRKn{$x$ has type $S$}
+$
+\end{grammar}
+
+The typing rules for this question are:
+
+\medskip
+
+\judgbox{\Gamma |- M : S}{term $M$ has type $S$}
+\begin{mathpar}
+  \Infer{type-int}
+      {}
+      {\Gamma |- n : \Int}
+  \and~~
+  \Infer{type-identity}
+      {
+      }
+      {\Gamma |- \lcabs{x}{x} : \Int -> \Int}
+  \and~~
+  \Infer{type-app}
+      {
+        \Gamma |- M_1 : S -> T
+        \\
+        \Gamma |- M_2 : S
+      }
+      {\Gamma |- \lcapp{M_1}{M_2} : T}
+  \\
+  \Infer{type-choose}
+      {
+        \Gamma |- M_1 : S
+        \\
+        \Gamma |- M_2 : S
+      }
+      {
+        \Gamma |- \DC{M_1}{M_2} : S
+      }
+\end{mathpar}
+
+There are many, many terms that should be typable but aren't,
+such as $\lcabs{x}{3}$, but we ignore them in this question.
+
+
+
+\textbf{3(b) part 1.} 
+Complete the following derivations:
+
+\vspace{5ex}
+\[
+\Infer{type-choose}
+     {
+       \hspace*{200pt}
+     }
+     {
+       \emptyctx |- \DC{4}{5} : \Int
+     }
+\]
+\vspace{12ex}
+\[
+\Infer{type-choose}
+     {
+       \hspace*{400pt}
+     }
+     {
+       \emptyctx |-        \DC{\lcabs{x}{x}}{\lcabs{y}{y}} : \Int -> \Int
+     }
+\]
+
+\vfill
+
+\textbf{Question 3(b) part 2 on next page}
+\clearpage
+
+\textbf{3(b) part 2.}
+Complete one case of type preservation: the case for eval-choose2.
+
+Proving some of the other cases would require additional lemmas, such as a substitution lemma,
+but the case for eval-choose2 should not need any lemmas.
+
+
+\textbf{Hint:} Within your case for eval-choose2,
+you will need to think about which rule can conclude $\emptyctx |- M : S$.
+
+\begin{conjecture}
+  If $\emptyctx |- M : S$
+  and $\Dee$ derives $M \down v$
+  then
+  $\emptyctx |- v : S$.
+\end{conjecture}
+\begin{proof}
+  By induction on the derivation $\Dee$.
+
+  The induction hypothesis is:
+  If $\Dee' \prec \Dee$ and $\emptyctx |- M' : S'$
+  and $\Dee'$ derives $M' \down v'$
+  then $\emptyctx |- v' : S'$.
+
+  Consider cases of the rule concluding $\Dee$.
+
+  \begin{itemize}
+  \item Case for eval-choose2:
+
+\vfill
+  \end{itemize}
+\end{proof}
+
+
+\textbf{3(b) part 3.}
+The statement of type preservation contains several objects that we could potentially induct on.
+I chose to induct on the derivation of $M \down v$.
+Considering only the eval-choose2 case, would inducting on $S$
+have worked?  That is, the IH would require $S' \prec S$, instead of $\Dee' \prec \Dee$.
+(For example, $\Int \prec \Int -> \Int$, but $\Int -> \Int \not\prec \Int -> \Int$.)
+
+\vspace*{15ex}
+
+\end{document}
+
+
+
+
+% Local Variables:
+% TeX-master: "midterm"
+% End:
+

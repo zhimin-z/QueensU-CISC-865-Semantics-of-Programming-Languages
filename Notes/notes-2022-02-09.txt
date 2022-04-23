@@ -1,0 +1,251 @@
+465/865 Wednesday 2022-02-09
+Jana Dunfield
+Please mute your microphone when not speaking
+This lecture is recorded until about the 50-minute mark
+
+Starting lec8.pdf (Negation)
+Natural deduction:
+
+atomic formulas   P, Q
+                  (we also use   "a > 0", etc.
+variables         a, b
+                  )
+formulas          A, B, C ::= P           atomic formula
+                            | A ⊃ B       implication  (A → B)
+			    | A ∧ B       conjunction (and)
+			    | A ∨ B       disjunction (or)
+			    | ∀a:nat. A   (for all a)
+                            | ∃a:nat. A   (there exists a)
+                            | True        truth (always true)
+                            | False       falsehood
+			    | ¬A          negation
++--------+
+| A true | formula A is true
++--------+
+ 
+  A true     B true            
+  ––––––––––––––––– ∧Intro 
+     (A ∧ B) true	   
+
+  A ∧ B true  	       A ∧ B true  	    
+  –––––––––– ∧Elim1    –––––––––– ∧Elim2 
+    A true               B true          
+
+     x[A true] 
+        .
+        .
+        .                  
+       B true             x
+  ––––––––––––––––– ⊃Intro 
+    (A ⊃ B) true           
+
+  A true        A ⊃ B true
+  A ⊃ B true    A true		 
+  –––––––––––––––––––– ⊃Elim	 
+         B true        
+
+  ——————————— TrueIntro
+   True true
+
+   No elimination rule (TrueElim) for True
+
+["True" is another symbol for "⊤" as used in e.g. CISC 204]
+["False" is another symbol for "⊥" as used in e.g. CISC 204]
+
+    A true              B true
+  –––––––––– ∨Intro1   –––––––––– ∨Intro2
+  A ∨ B true           A ∨ B true
+
+                   x[A true]    y[B true]
+                      .             .
+                      .             .
+                      .             .
+  A ∨ B true        C true       C true
+  ––––––––––––––––––––––––––––––––––––– ∨Elim
+                 C true
+
+
+              x[a:nat]
+
+               B true                  x
+ ––––––––––––––––––––––––––––––– ∀Intro
+       (∀a:nat. B) true
+
+   (∀a:nat. B) true              n : nat       
+   ––––––––––––––––––––––––––––––––––––– ∀Elim 
+                [n/a]B true
+
+   n : nat   ([n/a]B) true   
+   ––––––––––––––––––––––– ∃Intro
+      (∃a:nat. B) true
+                               x[a:nat]
+			       y[B true]
+                                  :
+				  :
+   (∃a:nat. B) true            C true          x,y
+   –––––––––––––––––––––––––––––––––––––– ∃Elim
+                   C true
+  
+   False true
+   –––––––––– FalseElim
+     C true               ["ex falso quodlibet"]
+
+  A true     (¬A) true
+  –––––––––––––––––––– ¬Elim
+        False true
+
+      x[A true]
+         .
+	 .
+	 .
+     False true          x
+   ––––––––––––––– ¬Intro
+      (¬A) true
+
+
+
+
+lec8.pdf Sec1, Sec2
+
+Intuitionistic logic (Constructive logic)
+and
+Classical logic
+
+Classical logic:
+  Every proposition is either true or false
+
+  ––––––––––––– [LEM] law of the excluded middle
+  (A ∨ ¬A) true
+
+  "Does a given program terminate?"
+  "Does a given Turing machine halt?"
+     (undecidable)
+     (semi-decidable)
+
+  Even if we believe every proposition is either true or false, if we can't figure out which, it doesn't matter.
+
+Intuitionistic logic:
+
+  Does not have LEM
+  
+  A true     (¬A) true
+  –––––––––––––––––––– ¬Elim
+        False true
+
+    False true
+   –––––––––– FalseElim
+     C true
+
+       x[nonsense true]
+
+  Q true      (¬Q) true
+  ––––––––––––––––––––– ¬Elim
+       False true
+       –––––––––––– FalseElim
+       (3 < 2) true
+           ...                    x
+   ––––––––––––––––––––––––––– ???
+
+      x[A true]
+         .
+	 .
+	 .
+     False true          x
+   ––––––––––––––– ¬Intro
+      (¬A) true
+
+
+      x[False true]
+
+       –––––––––––– x
+	False true
+      –––––––––––––– ¬Intro
+      (¬False) true
+
+
+      x[False true]
+
+       –––––––––––– x
+        False true
+       –––––––––––– FalseElim
+	False true
+      –––––––––––––– ¬Intro
+      (¬False) true
+
+If we were using classical logic:
+  ¬False would be equivalent to True
+  ¬⊥  ≡  ⊤
+
+¬Intro  is similar to  proof by contradiction in mathematics
+
+...  Assume n is a natural number.
+Suppose, for a contradiction, that n + 0.5 is a natural number.
+   .
+   .
+   .
+   get a contradiction
+Therefore, n + 0.5 is not a natural number.
+ equiv. to:  ¬(n + 0.5 is a natural number)
+Theorem 1.  Let ... .  ∃x ∀y∈S ...x and y... or  and
+
+
+Suppose, for a contradiction, that there exists a number n
+  such that succ(n) = 0
+  .
+  .
+  .
+  False
+Therefore,
+  ¬(there exists a number n such that succ(n) = 0)
+  there does not exist a number n such that succ(n) = 0.
+
+[Double negation: Friday]
+
+    x[((P ∧ Q) ∧ ¬Q) true]
+
+––––––––––––––––––– x        ––––––––––––––––––– x
+((P ∧ Q) ∧ ¬Q) true	     ((P ∧ Q) ∧ ¬Q) true
+––––––––––––––––––– ∧Elim1   ––––––––––––––––––– ∧Elim2
+   (P ∧ Q) true                   ¬Q true
+   –––––––––––– ∧Elim2             
+      Q true  
+    –––––––––––––––––––––––––––––––––––––––––––––––– ¬Elim
+         False true                                         x
+  ––––––––––––––––––––––––––––––––––––––––––––––––––– ¬Intro
+  ¬((P ∧ Q) ∧ ¬Q) true
+
+"not" (P and Q and not Q)
+
+                         x[((P ∨ Q) ∧ ¬Q) true]
+                                                          z2[Q true]  
+                                     
+                                                               –––––––––––––––– x
+––––––––––––––––––– x                                           ((P ∨ Q) ∧ ¬Q)
+((P ∨ Q) ∧ ¬Q) true             z1[P true]      –––––––––– z2  –––––––––––––– ∧E2
+––––––––––––––––––– ∧Elim1                        Q true          ¬Q true
+     P ∨ Q true                                  ––––––––––––––––––––––––––– ¬Elim
+                                                           False true
+			       –––––––––––– z1             ––––––––––
+                                 P  true                   P  true          z1,z2
+     ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––– ∨Elim
+               P true                                                        x
+–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––– ⊃Intro
+        ((P ∨ Q) ∧ ¬Q) ⊃ P true
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

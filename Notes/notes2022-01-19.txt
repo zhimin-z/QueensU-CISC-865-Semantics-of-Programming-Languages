@@ -1,0 +1,133 @@
+465/865 Wednesday 2022-01-19
+Please mute your microphone when not speaking
+This lecture is recorded until about the 50-minute mark
+
+Still on lec2.pdf, Section 3, near the bottom of page 6
+
+  integers      n ∈ ℤ
+  expressions   e ::= n
+                    | (+ e e)
+
++------------+
+|  e |-> e'  |   e steps to e'
++------------+
+
+    n = n1 + n2               
+  ––––––––––––––– step-add
+  (+ n1 n2) |-> n
+
+       e1 |-> e1'
+–––––––––––––––––––––––– step-add-left
+(+ e1 e2) |-> (+ e1' e2)
+
+       e2 |-> e2'
+–––––––––––––––––––––––– step-add-right
+(+ e1 e2) |-> (+ e1 e2')
+
+
+    (+ n n) |-> 2n
+ is equivalent to
+    the judgment (+ n n) |-> 2n holds
+    the judgment (+ n n) |-> 2n is derivable
+    there exists a derivation of (+ n n) |-> 2n
+    there exists D deriving (+ n n) |-> 2n   (gives the name D to the derivation)
+
+Theorem 1.
+For all integers n, it is the case that  (+ n n) |-> 2n.
+
+A theorem is like a machine: (a proof is like a machine)
+this one takes an integer  n  and produces a derivation of (+ n n) |-> 2n.
+
+
+Is the judgment (+ 3 3) |-> 7 derivable?
+(equivalently)
+Is there a derivation of (+ 3 3) |-> 7?
+Answer:
+  not by step-add, because we could get (+ 3 3) |-> 6, but not (+ 3 3) |-> 7
+  by step-add-left?  3 |-> ...? no, can't derive the first premise of step-add-left
+  by step-add-right? 3 |-> ...? no, can't derive the first premise of step-add-right
+  no
+
+Is the judgment (+ 3 3) |-> 0 derivable?
+  by similar reasoning, no
+
+Theorem 2 takes a derivation (of  (+ n n) |-> e')
+and shows that e' = 2n.
+
+[
+  If D1 derives (+ n n) |-> (+ 2n 0)    <- we can't construct this
+  then (+ 2n 0) = 2n
+]
+
+Renamed n to m in Theorem 2 statement to avoid name clash.
+
+Theorem 2.
+  For all expressions e', if D1 derives (+ m m) |-> e'
+  then e' = 2m.
+Proof:
+"What do I know? What am I trying to prove?"
+  thing                    justification (why thing is true)
+  ======================   ==============================================
+ [e' is an expression   ]  (yes, but we always know that, because if we write
+                            e', e' is an expression)
+  (+ m m) |-> e'           Above
+
+Which rule could have been used to derive (+ m m) |-> e' ?
+
+Consider cases of the rule concluding D1:
+
+  • step-add:
+    Assume we used step-add.
+
+    To answer this, first look at the form of the conclusion of step-add;
+    n1 can be m, n2 can be m, n can be e'.
+    Conclusion is okay.
+    Now we check the premise:
+      Is it possible that n = n1 + n2?
+      Is it possible that n = m + m?  Sure, that's possible
+    n = m + m                By inversion (because we know we used step-add)
+    n = e'                   By inversion (because we know we used step-add)
+    n = 2m                   By arithmetic (2m = m + m)
+    e' = 2m                  By above equations
+
+(answering a question
+  m + m = 2m
+
+  If m = 5, then 10 |-> 10
+)
+  • step-add-left:
+    Assume we used step-add-left.
+
+    (+ e1 e2) |-> (+ e1' e2)
+    (+ m  m ) |-> e'
+
+    m = e1                  By inversion (because we used step-add-left)
+    m = e2                  By inversion (because we used step-add-left)
+   e' = (+ e1' e2)          By inversion (because we used step-add-left)
+[INVERSION gives two things:
+   (1) equations from lining up the conclusion of the rule with
+       the conclusion of the given derivation
+   (2) the premises of the rule]
+   e1 |-> e1'               By inversion (because we used step-add-left)
+    m |-> e1'               By above equation
+    No rule can derive m |-> e1'
+    ( Consider cases of the rule deriving m |-> e1':
+        get contradiction for all three)
+    contradiction
+
+  • step-add-right
+    Assume we used step-add-right.
+    Exercise:
+      Write this out in approximately as much detail as the step-add-left case
+
+[When we consider cases, we have to show the same thing in every case.
+ That is, we need to show e' = 2m.
+ In the step-add case, we showed e' = 2m directly.
+ In the step-add-left case, we can look at it in two different ways:
+
+   First way: We showed e' = 2m because we got a contradiction, and you can prove anything from a contradiction.
+
+   Second way: We obtained a contradiction, which showed that the step-add-left case was impossible.]
+
+  In all cases (once you've done the step-add-right case),
+  e' = 2m

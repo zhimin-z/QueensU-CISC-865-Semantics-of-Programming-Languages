@@ -1,0 +1,127 @@
+465/865 Wednesday 2022-03-23
+Jana Dunfield
+This lecture is (hopefully) recorded until about the 50-minute mark
+
+https://stream.queensu.ca/hapi/v1/contents/permalinks/MacCorryD216/view
+
+If you are watching the stream above, please connect to Zoom, the audio is more likely to work there
+
+Today: Finishing lec12.pdf, starting lec13.pdf
+
+Preservation:
+If Ø ⊢ e : S and e |-> e' then Ø ⊢ e' : S.
+
+Suppose we remove *all* the reduction rules.
+
+    e1  |->R e1'
+––––––––––––––––––– step-context
+  C[e1] |-> C[e1']
+What happens to preservation?
+Proof.
+       e |-> e'         Given
+      e1 |->R e1'       By inversion on step-context
+However, we have no reduction rules, so:
+      impossible.
+
+Type preservation + progress  =  type safety    or  type soundness
+Progress:
+If Ø ⊢ e : S then either (1) e is a value
+                      or (2) there exists e'
+                               such that  e |-> e'.
+
+Type safety (combined):
+If Ø ⊢ e : S then either (1) e is a value, or
+                         (2) there exists e'
+                               such that  e |-> e'
+                                     and  Ø ⊢ e' : S.
+
+Suppose we remove *all* the reduction rules.
+Then progress fails.
+
+
+Today (first part):
+
+   fact n = if n < 1 then 1 else n * fact (n - 1)
+   fact 3 = 3 * 2 * 1 = 6
+           3 * fact 2
+           3 * (2 * fact (2 - 1))
+           3 * (2 * 1 * (fact (1 - 1)))
+           3 * (2 * 1 * 1)
+
+      Ø ⊢ (Rec fact (Lam n (Ite (< n 1)
+                               1
+                               (* n (Call fact (- n 1)))))) : int -> int
+
+(Rec fact (Lam n (Ite (< n 1)
+                 1
+                 (* n (Call (Rec fact (Lam n (Ite (< n 1)
+                                              1
+                                              (* n (Call fact (- n 1))))))
+                            (- n 1))))))
+Add recursion:
+
+e ::= ...
+    | (Rec x e)
+
+v ::= ...
+
+C ::= ...
+
+
+
+      ––––––––––––––––––––––––––––––––––– red-rec
+      (Rec x e) |->R [(Rec x e)/x]e
+
+      (Rec x x) |->R [(Rec x x)/x]x
+                   = (Rec x x)
+
+      (Rec x x) |->R (Rec x x)
+
+      (Rec x (Lam y (Call x y))) |->R [(Rec x (Lam y (Call x y))) / x](Lam y (Call x y))
+                                    = (Lam y (Call (Rec x (Lam y (Call x y))) y))
+
+      (Call (Rec x (Lam y (Call x y))) 0) |->R
+      (Call (Lam y (Call (Rec x (Lam y (Call x y))) y)) 0)
+      
+      (Call (Lam y (Call (Rec x (Lam y (Call x y))) y)) 0) |->R
+      (Call (Rec x (Lam y (Call x y))) 0)
+
+      (Rec x (Lam y ...(Call x ...))) |-> 
+       ----------------------^
+
+            Γ, x : S ⊢ e1 : S
+      –––––––––––––––––––––––––––––––– type-rec
+            Γ ⊢ (Rec x e1) : S
+            Ø ⊢ e          : S
+
+      Γ, fact : int -> int ⊢ e : int -> int
+      ––––––––––––––––––––––––––––––––––––– type-rec
+            Γ ⊢ (Rec fact e) : int -> int
+
+      Ø, x1:bool ⊢ x1 : bool
+      –––––––––––––––––––––––––––– →Intro
+      Ø ⊢ (Lam x1 x1) : bool -> bool
+            
+Progress:
+If D derives Ø ⊢ e : S then either (1) e is a value
+                                or (2) there exists e'
+                                       such that  e |-> e'.
+Proof:
+  By induction the derivation D.
+  [Alternatively, by induction on e.]
+
+  Consider cases of the rule concluding Ø ⊢ e : S.
+
+  • Case: type-rec
+
+          Ø ⊢ e : S
+          e = (Rec x e1)     By inversion
+          Γ = Ø              "
+          Ø, x : S ⊢ e1 : S  "
+          (Rec x e1) |->R [(Rec x e1)/x]e1   By red-rec
+          (Rec x e1) |->  [(Rec x e1)/x]e1   By step-context with C = []
+                          ^^^^^^^^^^^^^^^^ e'
+      Let e' = [(Rec x e1)/x]e1
+      Thus, there exists e' such that (Rec x e1) |-> e'
+      By above equation, there exists e' such that e |-> e'
+   (End of case.)

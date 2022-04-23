@@ -1,0 +1,215 @@
+465/865 Friday 2022-01-21
+Please mute your microphone when not speaking
+This lecture is recorded until about the 50-minute mark
+
+Discussions: https://piazza.com/queensu.ca/winter2022/cisc465865
+
+Assignment 1 is posted, due 2022-01-28 (+ 1 day grace period)
+
+I need to speed up (partly, to cover enough material for you to do
+Section 3 of Assignment 1).
+So I'm not going to talk through everything that's in lec2.pdf.
+
+  e |-> e'  "Small-step"
+
+ (+ (+ 1 2) (+ 3 4)) |-> (+ (+ 1 2) 7)
+ 
+ (+ (+ 1 2) 7) |-> (+ 3 7)
+
+ (+ 3 7) |-> 10
+
+(" e |->* e' ": e takes zero or more small steps to e' )
+
+Choice of how to proceed: could also have done
+ (+ (+ 1 2) (+ 3 4)) |-> (+ 3 (+ 3 4))
+ (+ 3 (+ 3 4)) |-> (+ 3 7)
+ (+ 3 7) |-> 10
+
+  integers      n ∈ ℤ
+  expressions   e ::= n
+                    | (+ e e)
+  values        v ::= n          ◄◄◄ new
+
+(Values can't step)
+
+"Big-step" judgment from page 8 of lec2.pdf:
+
+
++-------+
+| e ⇓ v |  Expression e evaluates to value v (big-step)
++-------+
+                        e1 ⇓ n1    e2 ⇓ n2
+   –––––– eval-const    ––––––––––––––––––– eval-add
+   n ⇓ n                (+ e1 e2) ⇓ n1+n2 
+
+(Could have written it like this:
+e1 ⇓ n1    e2 ⇓ n2  n=n1+n2
+–––––––––––––––––––––––––––– eval-add2
+(+ e1 e2) ⇓ n
+This is equivalent to the rule eval-add)
+
+Example:
+
+––––––––– eval-const
+100 ⇓ 100
+
+   100 ⇓ 100      By eval-const
+
+Example:
+
+  –––––– eval-const     –––––––––––– eval-const
+  3 ⇓ 3                   4 ⇓ 4
+  ––––––––––––––––––––––––––––––––––– eval-add
+              (+ 3  4) ⇓ 3+4
+  (+ e1 e2)
+  e1 = 3
+  e2 = 4
+
+
+  –––––– eval-const     –––––––––––– eval-const
+  3 ⇓ 3                   4 ⇓ 4
+  ––––––––––––––––––––––––––––––––––– eval-add
+              (+ 3  4) ⇓  7
+
+
+  3 ⇓ 3                      By eval-const
+  4 ⇓ 4                      By eval-const
+  (+ 3 4) ⇓ 3 + 4            By eval-add
+  3 + 4 = 7                  By a property of arithmetic
+  (+ 3 4) ⇓ 7                By above equation
+  
+
+Conjecture 4 ("Determinacy")
+For all e, v1, v2
+such that  e ⇓ v1  and  e ⇓ v2, it is the case that  v1 = v2.
+
+Proof:
+By structural induction on e.
+
+What is structural induction?
+
+What is induction?
+
+Two sides of induction:
+
+• *Defining* something inductively:
+
+ e |-> e'
+ (+ 1 2) |-> 3
+ 
+  
+  expressions   e ::= n                ◄1
+                    | (+ e e)          ◄2
+
+  1. If n is an integer, then n is an expression.
+  2. If e1 is an expression and e2 is an expression, then (+ e1 e2) is an expression.
+
+(INCORRECT:
+  2. If e is an expression, then (+ e e) is an expression.
+  )
+
+ 
+• *Proving* something about a thing that was defined inductively.
+
+
+
+
+You may have learned something called
+"simple induction" ("mathematical induction")
+ on natural numbers:
+
+ "To prove P(n) for all n ∈ ℕ, do this:
+
+   "write 'Base case' and prove P(0)         (or P(1) if you had an instructor
+                                              who thinks 0 isn't in ℕ)
+
+   "write 'Inductive step' and prove P(n + 1) assuming P(n)"
+
+(Variant: in the inductive step, assume P(0) through P(n),
+ "complete induction")
+
+The shape of a proof done that way corresponds to an inductive definition of the natural numbers:
+
+  (a) 0  is a natural number.
+  (b) If n is a natural number, then n + 1 is a natural number.
+
+
+
+I prefer:
+
+  To prove P(n) for all n ∈ ℕ, do this:
+
+[Thing you have to say:]
+Proof:  By induction on n.
+
+[Thing that is very very useful to write:]
+  IH (induction hypothesis):
+    For all m ∈ ℕ such that m < n, P(m).
+
+[Often useful next step of the proof:]
+  Consider cases of n:
+   • n = 0:  prove P(0)
+
+   • n > 0:  prove P(n)   (using the IH, can assume P(m) for all m < n)
+
+How to get the IH:
+  1. Start with the thing you're trying to prove.
+  2. Rename everything. (If there are no prime marks ', add them everywhere.)
+  3. Add the condition that the renamed thing we're inducting on
+     is smaller than the original thing we're inducting on.
+  Done.
+
+Conjecture 4 ("Determinacy")
+For all e, v1, v2
+such that  e ⇓ v1  and  e ⇓ v2, it is the case that  v1 = v2.
+
+Proof: By structural induction on e.
+  (or "By induction on e")
+
+  IH (induction hypothesis):
+"How to get the IH", step 1:
+"For all e, v1, v2
+such that  e ⇓ v1  and  e ⇓ v2, it is the case that  v1 = v2."
+Step 2:
+"For all e', v1', v2'
+such that  e' ⇓ v1'  and  e' ⇓ v2', it is the case that  v1' = v2'."
+Step 3:
+"the original thing we're inducting on"
+"renamed e  is smaller than  e"
+e' < e
+"For all e', v1', v2' 
+such that e' < e  and  e' ⇓ v1'  and  e' ⇓ v2', it is the case that  v1' = v2'."
+
+
+Conjecture 4:
+For all e, v1, v2
+such that  e ⇓ v1  and  e ⇓ v2, it is the case that  v1 = v2.
+
+Proof: By structural induction on e.
+  (or "By induction on e")
+  IH (induction hypothesis):
+     For all e', v1', v2' 
+     such that e' < e  and  e' ⇓ v1'  and  e' ⇓ v2', it is the case that  v1' = v2'.
+
+
+Exercise:
+
+  Conjecture: For all natural numbers k, it is the case that k is a horse.
+  (This is false, numbers are not horses.
+   The point is to see how to write the IH.)
+
+  Proof: By induction on k.
+  IH:
+    "For all natural numbers k, it is the case that k is a horse."
+    "For all natural numbers k', it is the case that k' is a horse."
+    For all natural numbers k' such that k' < k, then k' is a horse.
+
+  Consider cases of k:
+    • k = 0:
+
+        0 is a horse        ??
+        k is a horse        By above equation
+	
+    • k > 0:
+        k - 1 is a horse    By IH
+        k is a horse        ??

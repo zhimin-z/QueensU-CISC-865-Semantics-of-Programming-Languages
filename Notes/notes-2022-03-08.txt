@@ -1,0 +1,191 @@
+465/865 Monday 2022-03-08
+Jana Dunfield
+This lecture is (hopefully) recorded until about the 50-minute mark
+
+https://stream.queensu.ca/hapi/v1/contents/permalinks/MacCorryD216/view
+
+Today: lec11.pdf.
+
+
+program
+variables    x, y, z
+
+integers     n
+
+values       v ::= n
+                 | True
+		 | False
+		 | (Lam x e)
+		 | x                   -- maybe?
+
+expressions  e ::= n
+                 | (+ e e)
+                 | (- e e)
+		 | (= e e)
+		 | (< e e)
+		 | True
+		 | False
+		 | (Ite e e e)         -- if-then-else (Ite e1 e2 e3)  if e1 then e2 else e3
+		 | (Lam x e)           -- Lambda, anonymous function that takes an argument x and evaluates the body e
+		 | (Call e e)          -- (Call e1 e2)  call the function e1 with argument e2
+		 | x                   -- program variable
+
++–––––––––––+
+| e |->R e' | expression e reduces to e'
++–––––––––––+
+
+    –––––––––––––––––––––– red-add
+    (+ n1 n2) |->R n1 + n2
+
+    –––––––––––––––––––––– red-subtract
+    (- n1 n2) |->R n1 - n2
+
+    –––––––––––––––––––––– red-equals     where n1 = n2
+    (= n1 n2) |->R n1 = n2                 is True if n1 equals n2, and is False if n1 ≠ n2
+
+    –––––––––––––––––––––– red-lessthan   where n1 < n2
+    (< n1 n2) |->R n1 < n2                  is True if n1 less than n2, and is False if n1 ≥ n2
+   
+    ––––––––––––––––––––––––––––––––– red-ite-then
+    (Ite True eThen eElse) |->R eThen
+
+    –––––––––––––––––––––––––––––––––– red-ite-else
+    (Ite False eThen eElse) |->R eElse
+ 
+    –––––––––––––––––––––––––––––––––––– red-by-value ("red-beta" in lec12.pdf)
+    (Call (Lam x e) vArg) |->R [vArg/x]e
+
++–––––––––––+
+| e |->  e' | expression e steps to e'
++–––––––––––+
+
+   C ::= []
+       | (+ C e) | (+ e C)
+       | (- C e) | (- e C)
+       | (= C e) | (= e C)
+       | (< C e) | (< e C)
+       | (Ite C e e)
+       | (Call C e) | (Call e C)
+
+      e |->R e'
+    –––––––––––––– step-context
+    C[e] |-> C[e']
+
+        e1 |->R e1'
+    –––––––––––––––––– step-context
+    C1[e1] |-> C1[e1']
+
+        –––––––––––––– red-add
+        (+ 1 2) |->R 3
+    –––––––––––––––––––––––––––––––––––––– step-context
+    (= (+ 1 2) (- 7 4)) |-> (= 3 (- 7 4))
+                               what is 3? a value
+        C1 = (= [] (- 7 4))
+        e1 = (+ 1 2)
+    C1[e1] = (= (+ 1 2) (- 7 4))
+       e1' = 3
+
+                –––––––––––––– red-subtract
+                (- 7 4) |->R 3
+    ––––––––––––––––––––––––––––––––––––––––––– step-context
+    (= (+ 1 2) (- 7 4)) |-> (= (+ 1 2) 3)
+                            (= (+ 1 2) [])[e2']
+        C2 = (= (+ 1 2) [])
+    C2[e2] = (= (+ 1 2) (- 7 4))  = (= (+ 1 2) (- 7 4))
+        e2 = (- 7 4)
+       e2' = 3
+
+     (= (+ 1 2) (- 7 4)) |-> (= 3 (- 7 4))    using C1
+
+     (= (+ 1 2) (- 7 4)) |-> (= (+ 1 2) 3)   using C2
+
+     (= 3 (- 7 4)) |-> (= 3 3)
+     (= (+ 1 2) 3) |-> (= 3 3)
+          3 |->R
+    –––––––––––––––––– step-context
+     (= 3 3) |-> True
+
+    C3 = (= [] 3)        3 doesn't reduce
+    C3[e3] = (= 3 3)
+    e3 = 3
+
+    C3 = (= 3 [])        3 doesn't reduce
+    C3[e3] = (= 3 3)
+    e3 = 3
+
+     (= 3 3) |->R True
+    ––––––––––––––––––– step-context
+     (= 3 3) |-> True
+
+    C3 = []
+    C3[e3] = [][e3] = (= 3 3) = e3
+    e3' = True
+    C3[e3'] = [][e3'] = e3' = True
+
+* [Confluence: always get to the same expression in the end, here: True]
+
+* Determinacy:
+
+    If e |-> e1 and e |-> e2 then e1 = e2
+
+    Counterexample: e = (= (+ 1 2) (- 7 4))
+                   e1 = (= 3 (- 7 4))
+                   e2 = (= (+ 1 2) 3)
+
+    Not true for step-context with the above grammar for C.
+
+Change the grammar to this:
+   C ::= []
+       | (+ C e) | (+ v C) | v
+       | (- C e) | (- v C)
+       | (= C e) | (= v C)
+       | (< C e) | (< v C)
+       | (Ite C e e)
+       | (Call C e) | (Call v C)
+
+   
+
+   (- (+ 1 2) 5) |-> (- 3 5)
+
+* OCaml
+
+
+
+
+* lec12.pdf: Intro to typing
+
+  Γ ::= Ø
+      | Γ, x : S
+
+  Ø, x : int ⊢ (+ x x) : int
+
+  Ø, x : int, y : int ⊢ (= x y) : bool
+                                  True or False
+                                  
+
+
+
+
+
+
+
+
+
+
+
+
+
+               =
+              / \
+             /   \
+            +     -
+           / \   / \
+          1   2  7  4
+
+
+
+
+
+
+
+

@@ -1,0 +1,201 @@
+465/865 Tuesday 2022-03-29
+Jana Dunfield
+This lecture is (hopefully) recorded until about the 50-minute mark
+
+https://stream.queensu.ca/hapi/v1/contents/permalinks/MacCorryD216/view
+
+If you are watching the stream above, please connect to Zoom, the audio is more likely to work there
+
+Continuing with lec13.pdf: Subtyping
+
+     Γ, x : S ⊢ e : S                      Γ, y:S1 ⊢ e : S2                 Γ ⊢ e1 : T1 -> S2   Γ ⊢ e2 : T1
+     ––––––––––––––––––– type-rec          –––––––––––––––––––––––– →Intro  –––––––––––––––––––––––––––––– →Elim
+      Γ ⊢ (Rec x e) : S                    Γ ⊢ (Lam y e) : S1 -> S2         Γ ⊢ (Call e1 e2) : S2
+
+Types  S, T ::=  int
+              |  bool
+              |  unit        Ø ⊢ () : unit
+              |  S -> T
+              |  S * T
+              |  S + T
+              |  ⊥           falsehood
+                             type with no values
+
+   (f : int -> ⊥) ∈ Ø, f : int -> ⊥, y : int
+  –––––––––––––––––––––––––––––––––––––––––– type-assum        –––––––––––––––––––––––––––––––––– intIntro
+  Ø, f : int -> ⊥, y : int ⊢ f : int -> ⊥                      Ø, f : int -> ⊥, y : int ⊢ 0 : int
+  ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+  Ø, f : int -> ⊥, y : int ⊢ (Call f 0) : ⊥  
+  –––––––––––––––––––––––––––––––––––––––––––––––––– →Intro
+   Ø, f : int -> ⊥ ⊢ (Lam y (Call f 0)) : int -> ⊥
+   ––––––––––––––––––––––––––––––––––––––––––––––––– type-rec         ––––––––––––– intIntro
+    Ø ⊢ (Rec f (Lam y (Call f 0))) : int -> ⊥                         Ø ⊢ 1 : int
+    –––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––- →Elim
+               Ø ⊢ (Call (Rec f (Lam y (Call f 0))) 1) : ⊥
+    
+     (Rec f (Lam y (Call f 0))) |-> [(Rec f (Lam y (Call f 0)))/f] (Lam y (Call f 0))
+                                  = (Lam y (Call (Rec f (Lam y (Call f 0))) 0))
+
+(Call (Rec f (Lam y (Call f 0))) 1) |-> [(Rec f (Lam y (Call f 0)))/f] (Call (Lam y (Call f 0)) 1)
+(Call (Rec f (Lam y (Call f 0))) 1)
+                                      = (Call (Lam y (Call (Rec f (Lam y (Call f 0))) 0)) 1)
+(Call (Lam y (Call (Rec f (Lam y (Call f 0))) 0)) 1) |-> [1/y](Call (Rec f (Lam y (Call f 0))) 1)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^      =  (Call (Rec f (Lam y (Call f 0))) 1)
+
+    (Call (Rec f (Lam y (Call f 0))) 1) |-> e'
+                                            e' : ⊥
+   Ø ⊢ (Lam x esomething) : int -> bool
+
+  Type preservation: If e : S and e |-> e' then e' : S.
+
+   e ::= ()
+       | x
+       | (Lam x e)
+       | (Call e1 e2)
+
+  If e1 : S and e1 |-> e2 and e2 |-> e3 and ... ... |-> v  then  v : S
+  If repeatedly stepping an expression gives you a value, then that value has the type you started with.
+  
+   Ø ⊢ (Call (Lam x esomething) 5) : bool
+
+      (Call (Lam x esomething) 5) |-> ... |-> v
+   By type preservation (repeated),  Ø ⊢ v : bool
+   
+
+  S ≤ T    S <: T
+           S is a subtype of T
+           S is a subclass of T      S inherits from T
+
+         If every value v of type S  is also a value of type T
+         then  S <: T
+
+    S, T ::= ...
+           | int
+           | nat      -- type of natural numbers, starting with 0
+
+         If every value v of type nat  is also a value of type int
+         then  nat <: int                                ℕ ⊆ ℤ
+
+    Most real subtyping systems are "incomplete".
+
+    "Soundness"
+         If S <: T then
+         every value v of type S  is a value of type T.
+
+   –––––––––– sub-nat-int        –––––– sub-refl (reflexivity)
+   nat <: int                    S <: S
+
+   S1 <: T1     S2 <: T2
+   ––––––––––––––––––––– sub-prod
+   S1 * S2 <: T1 * T2
+
+If Ø ⊢ v : S1 * S2 then v = (Pair v1 v2) where Ø ⊢ v1 : S1 and Ø ⊢ v2 : S2.
+
+   –––––––––– sub-nat-int     –––––––––– sub-refl
+   nat <: int                 int <: int
+   –––––––––––––––––––––––––––––––––––––––– sub-prod
+         (nat * int) <: (int * int)
+
+   contravariant   covariant
+   T1 <: S1        S2 <: T2                                      ––––––––––––sub-nat-int
+   –––––––––––––––––––––––– sub-→                bool <: bool     nat <: int
+   S1 -> S2    <:  T1 -> T2                      ––––––––––––––––––––––––––––––
+   int -> bool <: nat -> bool                     bool -> nat  <:  bool -> int
+                                                                   g
+                f : nat -> bool                              (Call g True)  integer
+
+                (Call f 0)  (Call f 5)  any natural number
+   (Call f 0)
+   (Call f -3)
+          Γ ⊢ v1 : S1
+      ––––––––––––––––––––––– +Intro1
+      Γ ⊢ (Inj1 v1) : S1 + S2
+
+        nat <: int
+        If Ø ⊢ v : nat    
+        then Ø ⊢ v : int
+
+   –––––––––––––––––––––––––––––––––––––––––––
+            (nat + bool) <: (bool + int)          don't want
+
+        If Ø ⊢ v : nat + bool          Ø ⊢ (Inj1 v1) : nat + bool    Ø ⊢ v1 : nat
+        then    
+           Ø ⊢ v : bool + int          Ø ⊢ (Inj1 v1) : bool + int    Ø ⊢ v1 : bool
+
+         nat <: int              bool <: bool
+    ––––––––––––––––––––––––––––––––––––––––––––
+            (nat + bool) <: (int + bool)          want this
+
+        If Ø ⊢ v : nat + bool          Ø ⊢ (Inj1 v1) : nat + bool    Ø ⊢ v1 : nat
+        then    
+           Ø ⊢ v : int + bool          Ø ⊢ (Inj1 v1) : int + bool    Ø ⊢ v1 : int
+
+         nat <: int              nat <: int
+    –––––––––––––––––––––––––––––––––––––––––––––
+            (nat + nat) <: (int + int)            want this
+
+        If Ø ⊢ v : nat + nat          Ø ⊢ (Inj2 v2) : nat + nat    Ø ⊢ v2 : nat
+        then    
+           Ø ⊢ v : int + int          Ø ⊢ (Inj2 v2) : int + int    Ø ⊢ v2 : int
+
+   S1 <: T1     S2 <: T2                         n ≥ 0
+   ––––––––––––––––––––– sub-prod            ––––––––––– natIntro     –––––––––––– intIntro
+   S1 * S2 <: T1 * T2                        Γ ⊢ n : nat              Γ ⊢ n : int
+
+    S1 <: T1             S2 <: T2
+    –––––––––––––––––––––––––––––
+          S1 + S2 <: T1 + T2
+     x : nat ∈ Ø, x : nat
+     –––––––––––––––––––– type-assum        –––––––––––––– natIntro    –––––––––––––– intIntro
+     Ø, x : nat ⊢ x : nat                    Ø ⊢ 465 : nat             Ø ⊢ 465 : int
+
+     ––––––––––––––––––––              
+     Ø, x : nat ⊢ x : int
+
+       Γ ⊢ e : nat                          Γ ⊢ e : int -> int
+     –––––––––––––––––––– nat-int           ––––––––––––––––––      int -> int <: nat -> int
+       Γ ⊢ e : int                          Γ ⊢ e : nat -> int
+
+     Γ ⊢ e : S     S <: T                   Γ ⊢ e : int    int <: bool
+     –––––––––––––––––––– type-subsume      ––––––––––––––––––––––––––
+         Γ ⊢ e : T                                Γ ⊢ e : bool
+
+              (Ite True e1 e2) |->R e1     (Ite False eThen eElse) |->R eElse
+              
+
+                                          (Ite 1 2 3) |->R 
+                                          if 1 then 2 else 3
+
+     int <: bool   at the moment, this is unsound
+
+     Ø ⊢ False : bool     Ø ⊢ 1 : nat    Ø ⊢ 0 : nat
+     ––––––––––––––––––––––––––––––––––––––––––––––– type-ite
+     Ø ⊢ (Ite False 1 0) : nat
+
+     ––––––––––––––––––––––– 
+     Ø ⊢ (Ite False 1 0) : S               S <: T
+     –––––––––––––––––––––––––––––––––––––––––––– type-subsume
+     Ø ⊢ (Ite False 1 0) : T
+
+                         ––––––––––––––––––––––––––type-assum
+                         x : nat, y : int ⊢ x : nat  nat <: int
+                         –––––––––––––––––––––––––––––––––––---type-subsume
+     ... ⊢ True : bool      x : nat, y : int ⊢ x : int       x : nat, y : int ⊢ y : int
+     ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––– type-ite
+     x : nat, y : int ⊢ (Ite True x y) : int
+
+     nat <: int
+     int <: int
+
+
+      Foo is a subclass of Bar
+      Foo -> int                       Bar -> int
+      int Foo.something (Foo arg)      int Bar.something (Bar arg)
+                        Foo <: Bar
+
+      Foo -> int   <:  Bar -> int
+      Java subtyping is unsound?
+      Γ ⊢ e : T          S <: T
+      –––––––––––––––––––––––––
+      Γ ⊢ (Downcast e) : S
+      

@@ -1,0 +1,121 @@
+CISC 465/865
+
+Mutable state
+
+Loc ::= L1 | L2 | ...
+
+e ::= ...
+    | (Alloc e)
+    | (Get e)
+    | (Set e1 e2)
+    | Loc
+
+v ::= ...
+    | Loc
+
+Σ ::= emp
+    | Σ, Loc ► v
+
+e |-> e'
+
+Σ; e |-> Σ'; e'     Under the store Σ, expression e steps to e', with a new store Σ'
+
+C ::= []
+    | ...
+    | (Alloc C)                 -- (Alloc (+ 2 2))
+    | (Get C)                   -- (Get (Call getsomelocation 1))
+    | (Set C e)                 -- (Set (Call g 1) (Call f 2))
+    | (Set v C)                 -- (Set L5 (Call f 2))
+
+S, T ::= ...
+       | Ref T                  -- reference    Ptr T
+
+Λ ::= Ø
+    | Loc : S
+    
+   Λ; Γ ⊢ e : S                       Λ; Γ ⊢ e : Ref S                  L2 : Ref int
+ –––––––––––––––––––––––– type-alloc  –––––––––––––––––– type-get     –––––––––––––––
+ Λ; Γ ⊢ (Alloc e) : Ref S             Λ; Γ ⊢ (Get e) : S               (Get L2) : int
+
+    –––––––––––––––––––––––––––––––––––––––––––––––        –––––––––––––––––––––––––––––
+    Σ1, L►v, Σ2; (Set L v2)  |->R  Σ1, L►v2, Σ2; ()        Σ; (- n1 n2)  |->R  Σ; n1-n2
+
+    Λ; Γ ⊢ e1 : Ref T      Λ; Γ ⊢ e2 : T
+    ––––––––––––––––––––––––––––––––––––– type-set
+         Λ; Γ ⊢ (Set e1 e2) : unit
+
+          x:S ∈ Γ                      Λ; Γ, x : S1 ⊢ e : S2
+    ––––––––––––––––––––– type-assum   –––––––––––––––––––––––––––– ->Intro
+     Λ; Γ ⊢ x : S                       Λ; Γ ⊢ (Lam x e) : S1 -> S2
+
+        Loc:S ∈ Λ
+    ––––––––––––––––––––––– type-loc                  S <: Top
+     Λ; Γ ⊢ Loc : Ref S
+ store
+ typing
+
+      ––––––––––––––––––––– type-loc
+         Γ ⊢ L2 : Ref Top
+      –––––––––––––––––––––– type-get
+      Λ; Γ ⊢ (Get L2) : Top
+
+Conjecture 1 (Type Preservation).
+If   Λ; Ø ⊢ e : S                    If   L1:int; Ø ⊢ (Get L1) : int
+and  ⊢ Σ : Λ                         and  ⊬ L1►True : L1:int       -- does not hold
+and  Σ; e |-> Σ'; e'                 and  L1►True; (Get L1) |-> L1►True; True
+then Λ; Ø ⊢ e' : S
+ and ⊢ Σ' : Λ              L1►True; e |-> L1►False; e'
+
+
+If   Ø; Ø ⊢ (Alloc 1) : Ref int
+and  ⊢ emp : Ø
+and  emp; (Alloc 1) |-> L2►1; L2
+then
+     Ø; Ø ⊢ L2 : Ref int           Ø, x : int ⊢ x : int
+ and ⊢ L2►1 : Ø
+
+
+Conjecture 1 (Type Preservation).
+If   Λ; Ø ⊢ e : S                   If   Ø; Ø ⊢ (Alloc 1) : Ref int
+and  ⊢ Σ : Λ                        and  ⊢ emp : Ø
+and  Σ; e |-> Σ'; e'                and  emp; (Alloc 1) |-> L2►1; L2
+then there exists Λ' such that
+     Λ, Λ'; Ø ⊢ e' : S              then Ø, L2 : int; Ø ⊢ L2 : Ref int
+ and ⊢ Σ' : Λ, Λ'                    and  ⊢ L2►1 : Ø, L2 : int
+
+=======================================================================
+
+(Let r (Alloc (Lam y (+ y 1)))
+  (Set 
+
+If we have polymorphism,
+  the above conjecture does not hold.
+Λ; Γ, α type ⊢ e : S
+–––––––––––––––––––––– ∀Intro  
+Λ; Γ ⊢ e : ∀α. S
+
+1. refinement types
+2. intersection and union types   --connected to polymorphism breaking
+3. call-by-value / call-by-need polymorphism
+4. intersection and union types
+5. incremental computation
+6. gradual typing 
+
+
+
+
+
+
+
+
+
+
+
+L ∉ dom(Σ)
+   –––––––––––––––––––––––––––––––– 
+   Σ; (Alloc v)  |->R  Σ, L►True; L            
+
+   Σ; (Alloc 5)  |->R  Σ, L►True; L
+      (Alloc 5) : Ref int       
+
+   Σ, L►True; (Get L)  |->R  Σ, L►True; True

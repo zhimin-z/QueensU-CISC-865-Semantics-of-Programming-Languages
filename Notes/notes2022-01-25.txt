@@ -1,0 +1,222 @@
+465/865 Tuesday 2022-01-25
+Please mute your microphone when not speaking
+This lecture is recorded until about the 50-minute mark
+
+Discussions: https://piazza.com/queensu.ca/winter2022/cisc465865
+
+Assignment 1 is posted, due 2022-01-28
+(+ 1 day grace period)
+
+Today: Some more of lec2.pdf with additional examples,
+       then jumping ahead to lec4.pdf.
+
+Inductive definition of the natural numbers:
+
+  (a) 0  is a natural number.
+  (b) If n is a natural number, then n + 1 is a natural number.
+
+...leads to an induction principle that allows us to do proofs by induction
+on a natural number.
+
+How to get the IH by induction on the natural numbers:
+  1. Start with the thing you're trying to prove.
+  2. Rename everything. (If there are no prime marks ', add them everywhere.)
+  3. Add the condition that the renamed thing (natural number) we're inducting on
+     is smaller than the original thing (natural number) we're inducting on.
+
+[This is "complete" or "strong" induction on natural numbers:
+If we are trying to prove P(n), the IH gives us P(0) through P(n - 1).
+In "simple" induction, if we are trying to prove P(n), the IH only gives us P(n - 1).]
+
+Inductive definition of expressions with same definition as before; grammar:
+
+  expressions   e ::= n
+                    | (+ e e)
+
+Equivalent in English:
+  (a) If n is an integer, then n is an expression.
+  (b) If e1 and e2 are expressions, then (+ e1 e2) is an expression.
+
+How to get the IH by induction on expressions:
+  1. Start with the thing you're trying to prove.
+  2. Rename everything. (If there are no prime marks ', add them everywhere.)
+  3. Add the condition that the renamed thing (expression) we're inducting on
+     is smaller than the original thing (expression) we're inducting on.
+
+What does "smaller" mean exactly for expressions?
+
+
+Example:
+Conjecture:
+  Every expression contains at least one integer.
+  ("contains", here, means "at least one integer appears in the string")
+
+This does not name the expression we're talking about, so:
+  For all expressions e, the expression e contains at least one integer.
+
+Proof: By induction on the expression e.
+
+IH: 
+  "For all expressions e' such that e' < e,
+   the expression e' contains at least one integer."
+
+What does "smaller" mean exactly for expressions?
+ Proper sub-expression: a subexpression that is "proper" (not the entire expression).
+ 
+ e' is a subexpression of e  iff  e' appears inside e
+
+e                      e             subexpressions of e   =  subtrees of e
+		       
+(+ (+ 1 2) 3)          +             1
+                      / \            2
+		     +   3           3
+		    / \              (+ 1 2)
+		   1   2             (+ (+ 1 2) 3)
+
+subexpressions of  5  ?              5
+"proper" means "strictly"
+
+proper subexpressions of  5 ?        None
+
+proper subexpressions of (+ 1 2)?    1
+                                     2
+
+Usually, "e' < e" will mean "e' is a proper subexpression of e".
+
+Other possibilities:
+  The depth of the tree: This is sound, but it's really induction on
+   a natural number (the depth of the expression considered as a tree)
+
+  e steps into a smaller value?  That probably does not work
+
+  e' is equal to a child of e:  Actually what people often mean by
+     "proof by structural induction"
+  (corresponds to the difference between simple induction on natural numbers
+   and complete induction on natural numbers)
+
+
+Conjecture:
+  For all expressions e, the expression e contains at least one integer.
+
+Proof: By induction on the expression e.
+
+IH: 
+  "For all expressions e' such that e' < e,
+   the expression e' contains at least one integer."
+
+Consider cases of e:    (case split / case analysis / disjunctive reasoning)
+  • e is an integer n:
+  [there exists an integer n such that e = n]
+
+  • e = (+ e1 e2):
+  [there exist e1 and e2 such that e = (+ e1 e2)]
+  "=" means the same tree
+  
+  3 = 1 + 2     3 ≠ (+ 1 2)
+
+    3           3    +
+                    / \
+		   1   2
+
+
+Conjecture:
+  For all expressions e, the expression e contains at least one integer.
+
+Proof: By induction on the expression e.
+
+IH: 
+  "For all expressions e' such that e' < e,
+   the expression e' contains at least one integer."
+
+Consider cases of e:    (case split / case analysis / disjunctive reasoning)
+  • e = n:
+    [e = n                                 Assumption within this case]
+     n contains at least one integer       n is an integer
+     e contains at least one integer       By above equation
+
+  • e = (+ e1 e2):
+[
+  "If e1 < e, then
+   the expression e1 contains at least one integer."
+
+]
+     e1 < e                                e = (+ e1 e2)
+     e1 contains at least one integer      By IH on e1
+     e contains at least one integer       e1 is a subexpression of e
+☐
+
+
+Rules are *also* inductive definitions (lec2.pdf p. 9):
+
+(a)
+(eval-const)  If n is an integer, then
+
+                   ————— eval-const
+		   n ⇓ n              is a derivation.
+
+(b)
+(eval-add)    If  D1 is a derivation of  e1 ⇓ n1
+              and D2 is a derivation of  e2 ⇓ n2
+	      then
+                    e1 ⇓ n1       e2 ⇓ n2
+                    ———————————————–————–– eval-add
+		     (+ e1 e2) ⇓ n1 + n2             is a derivation.
+
+And we can construct the IH in the same way...
+
+What does "smaller" mean exactly for derivations?
+
+How to get the IH by induction on derivations:
+  1. Start with the thing you're trying to prove.
+  2. Rename everything. (If there are no prime marks ', add them everywhere.)
+  3. Add the condition that the renamed thing (derivation) we're inducting on
+     is smaller than the original thing (derivation) we're inducting on.
+
+Conjecture:
+If D is a derivation of e ⇓ n then n = 3.
+
+Counterexample:
+   0 ⇓ 0   0 ≠ 3
+
+Therefore the conjecture is false.
+We can still state an IH:
+
+Conjecture:
+If D is a derivation of e ⇓ n then n = 3.
+Proof: By induction on D.
+IH: "If D' is a derivation of e' ⇓ n' such that D' < D then n' = 3."
+"D' < D" = D' is a proper subderivation of D
+
+
+
+
+
+
+
+Soundness and completeness:
+
+A theory T1 is sound with respect to a theory T2
+iff everything provable in T1 is provable in T2
+
+
+A theory T1 is sound with respect to a theory T2
+iff, whenever T1 says X is provable, T2 also says X is provable.
+
+Suppose T2 is the following theory:
+
+  ––––– T2-rule
+  e ⇓ 0
+
+By eval-const,  2 ⇓ 2  but  we can't use T2-rule to prove 2 ⇓ 2.
+Therefore the rules we have (eval-const, eval-add) are *not* sound with respect to T2.
+
+Suppose T3 is the following theory:
+
+  ––––– T3-rule
+  e ⇓ n
+
+Are the rules we have sound with respect to T3?
+
+Whenever our rules say X is provable, T3 says X is provable
+
+For example, our rules say (+ 1 2) ⇓ 3, and by T3-rule, (+ 1 2) ⇓ 3
